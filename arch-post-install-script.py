@@ -66,7 +66,7 @@ if user == "root":
     print(f"You're running this as {Fore.GREEN}" + user + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
     print(f"\n{Fore.BLUE}### So first, let's start off with the Chaotic AUR!")
     user_optin_chaoticaur = input(f"### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
-    if user_optin_chaoticaur == "y" or "Y" or "":
+    if user_optin_chaoticaur in ("y", "Y", ""):
         user_optin_chaoticaur = True
         print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
         os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
@@ -79,7 +79,7 @@ if user == "root":
         user_optin_chaoticaur = False
         print(f"\n{Fore.BLUE}### Skipping Chaotic AUR...")
     user_optin_de = input(f"\n{Fore.BLUE}### Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}")
-    if user_optin_de == "y" or "Y" or "":
+    if user_optin_de in ("y", "Y", ""):
         print(f"""\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}
 1. KDE (Default)
 2. GNOME
@@ -127,13 +127,13 @@ Include = /etc/pacman.d/mirrorlist""")
             os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
         else:
             user_optin_amf = input(f"\n{Fore.BLUE}### I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}")
-            if user_optin_amf == "y" or "Y" or "":
+            if user_optin_amf in ("y", "Y", ""):
                 print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
                 os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
             else:
                 print(f"\n{Fore.BLUE}### Skipping AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
     user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (If you're on Manjaro, choose N) (Y/n) {Style.RESET_ALL}")
-    if user_optin_kernel == "y" or "Y" or "":
+    if user_optin_kernel in ("y", "Y", ""):
         print(f"""\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)
 {Style.RESET_ALL}1. Linux Zen (default, also my personal favourite, (doesn't work in manjaro, install from linux-zen-git AUR package))
 2. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)
@@ -147,7 +147,7 @@ Include = /etc/pacman.d/mirrorlist""")
                 os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
             else:
                 user_optin_kernelsure = input(f"\n{Fore.BLUE}### Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
-                if user_option_kernelsure == "y" or "Y" or "":
+                if user_option_kernelsure in ("y", "Y", ""):
                     os.system("sudo -u \#1000 yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
                 else:
                     print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
@@ -161,7 +161,7 @@ Include = /etc/pacman.d/mirrorlist""")
     else:
         print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
     user_optin_pipewire = input(f"\n{Fore.BLUE}### Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}")
-    if user_optin_pipewire == "y" or "Y" or "":
+    if user_optin_pipewire in ("y", "Y", ""):
         print(f"\n{Fore.BLUE}### Installing Pipewire... {Style.RESET_ALL}")
         os.system("pacman -Rdd " + pulse)
         os.system("pacman -S " + pipewire)
@@ -170,7 +170,7 @@ Include = /etc/pacman.d/mirrorlist""")
     else:
         print(f"\n{Fore.BLUE}### Leaving PulseAudio as it is... {Style.RESET_ALL}")
     user_optin_performance = input(f"\n{Fore.BLUE}### Do you want to install some performance tweaks while you're at it? (Needs Chaotic AUR) (Y/n) {Style.RESET_ALL}")
-    if user_optin_performance == "y" or "Y" or "":
+    if user_optin_performance in ("y", "Y", ""):
         if user_optin_chaoticaur == True:
             os.system("pacman -S --noconfirm performance-tweaks")
         else:
@@ -181,7 +181,7 @@ Include = /etc/pacman.d/mirrorlist""")
         #file_makepkg.close()
         if user_amdgpu == True:
             user_optin_mesagit = input(f"\n{Fore.BLUE}### Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}")
-            if user_optin_mesagit == "y" or "Y" or "":
+            if user_optin_mesagit in ("y", "Y", ""):
                 print(f"\n{Fore.BLUE}### Installing Experimental Mesa... {Style.RESET_ALL}")
                 if user_optin_chaoticaur == True:
                     os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
@@ -201,7 +201,7 @@ Include = /etc/pacman.d/mirrorlist""")
     else:
         print(f"\n{Fore.BLUE}### Skipping performance tweaks... {Style.RESET_ALL}")
     user_optin_otherstartuptweaks = input(f"\n{Fore.BLUE}### Do you want to add a startup script that automatically sets your PC to high performance mode? (Y/n) {Style.RESET_ALL}")
-    if user_optin_otherstartuptweaks == "y" or "Y" or "":
+    if user_optin_otherstartuptweaks in ("y", "Y", ""):
         print(f"\n{Fore.BLUE}### Adding startup script... {Style.RESET_ALL}")    
         file_startup = open("/etc/startupscript.sh", "w")
         file_startup.write(startup_script)
