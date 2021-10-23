@@ -33,22 +33,27 @@ else:
 
 # check if user is on AMD GPU
 os.system('lspci | grep VGA | grep AMD > /tmp/arch-post-install-script/gpu.xnqs') 
-file_gpu = open("/tmp/arch-post-install-script/gpu.xnqs", "r")
-user_amdgpu = bool(file_gpu.read())
+user_amdgpu = bool(os.stat("/tmp/arch-post-install-script/gpu.xnqs").st_size)
 
 # check if user is on free GPU
 os.system('lspci | grep VGA | grep Intel >> /tmp/arch-post-install-script/gpu.xnqs')
 os.system('lspci | grep VGA | grep QXL >> /tmp/arch-post-install-script/gpu.xnqs')
-user_freegpu = bool(file_gpu.read())
+user_freegpu = bool(os.stat("/tmp/arch-post-install-script/gpu.xnqs").st_size)
 # check if user is on Ryzen CPU
 os.system("cat /proc/cpuinfo | grep Ryzen > /tmp/arch-post-install-script/cpu.xnqs")
-file_cpu = open("/tmp/arch-post-install-script/cpu.xnqs", "r")
-user_amdcpu = bool(file_cpu.read())
+user_amdcpu = bool(os.stat("/tmp/arch-post-install-script/cpu.xnqs").st_size)
 
 if os.path.exists("/tmp/arch-post-install-script/cpu.xnqs"):
     os.remove("/tmp/arch-post-install-script/cpu.xnqs")
 if os.path.exists("/tmp/arch-post-install-script/gpu.xnqs"):
     os.remove("/tmp/arch-post-install-script/gpu.xnqs")
+
+# check if user already installed chaotic
+os.system("cat /etc/pacman.conf | grep chaotic > /tmp/arch-post-install-script/chaotic_installed.xnqs")
+
+# check if user already installed multilib
+print(f"\n{Fore.BLUE}### Updating repos, might take a while depending on your internet connection...{Style.RESET_ALL}")
+os.system("pacman -Syy | grep multilib > /tmp/arch-post-install-script/user_installed_multilib.xnqs")
 
 # SCRIPT
 
@@ -67,7 +72,6 @@ if user == "root":
     user_optin_chaoticaur = input(f"### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
     if user_optin_chaoticaur in ("y", "Y", ""):
         user_optin_chaoticaur = True
-        os.system("cat /etc/pacman.conf | grep chaotic > /tmp/arch-post-install-script/chaotic_installed.xnqs")
         if os.stat("/tmp/arch-post-install-script/chaotic_installed.xnqs").st_size == 0:
             print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
             os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
@@ -103,7 +107,6 @@ if user == "root":
     else:
         print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Adding multilib repo for Wine and other gaming tools...{Style.RESET_ALL}")
-    os.system("pacman -Syy | grep multilib > /tmp/arch-post-install-script/user_installed_multilib.xnqs")
     if os.stat("/tmp/arch-post-install-script/user_installed_multilib.xnqs").st_size == 0:
         file_multilib = open("/etc/pacman.conf", "a")
         file_multilib.write("""[multilib]
