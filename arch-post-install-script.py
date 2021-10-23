@@ -7,14 +7,13 @@ init()
 # VARIABLES
 user = getpass.getuser()
 lutrisdeps = "wine-tkg-staging-fsync-git giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"
-gaming_stuff = "yay lutris steam gamemoderun mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
-chaoticaur = """[chaotic-aur]
-Include = /etc/pacman.d/chaotic-mirrorlist"""
+gaming_stuff = "yay lutris steam lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
+chaoticaur = """
+[chaotic-aur]
+Include = /etc/pacman.d/chaotic-mirrorlist
+"""
 pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseaudio-zeroconf pulseaudio-equalizer"
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
-makepkgvars = '''CFLAGS="-march=native -Ofast -pipe -fno-plt -fexceptions \
-        -Wp,-D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security \
-        -fstack-clash-protection -fcf-protection"'''
 startup_script = """#!/bin/bash
 
 # overclock
@@ -39,8 +38,8 @@ user_amdgpu = bool(file_gpu.read())
 
 # check if user is on free GPU
 os.system('lspci | grep VGA | grep Intel >> /tmp/arch-post-install-script/gpu.xnqs')
+os.system('lspci | grep VGA | grep QXL >> /tmp/arch-post-install-script/gpu.xnqs')
 user_freegpu = bool(file_gpu.read())
-
 # check if user is on Ryzen CPU
 os.system("cat /proc/cpuinfo | grep Ryzen > /tmp/arch-post-install-script/cpu.xnqs")
 file_cpu = open("/tmp/arch-post-install-script/cpu.xnqs", "r")
@@ -68,13 +67,17 @@ if user == "root":
     user_optin_chaoticaur = input(f"### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
     if user_optin_chaoticaur in ("y", "Y", ""):
         user_optin_chaoticaur = True
-        print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
-        os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
-        os.system("pacman-key --lsign-key 3056513887B78AEB")
-        os.system("pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
-        file_pacman = open("/etc/pacman.conf", "a")
-        file_pacman.write(chaoticaur)
-        file_pacman.close()
+        os.system("cat /etc/pacman.conf | grep chaotic > /tmp/arch-post-install-script/chaotic_installed.xnqs")
+        if os.stat("/tmp/arch-post-install-script/chaotic_installed.xnqs").st_size == 0:
+            print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
+            os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
+            os.system("pacman-key --lsign-key 3056513887B78AEB")
+            os.system("pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
+            file_pacman = open("/etc/pacman.conf", "a")
+            file_pacman.write(chaoticaur)
+            file_pacman.close()
+        else:
+            print(f"\n{Fore.BLUE}### Skipping Chaotic AUR because it is already installed...{Style.RESET_ALL}")
     else:
         user_optin_chaoticaur = False
         print(f"\n{Fore.BLUE}### Skipping Chaotic AUR...")
@@ -87,7 +90,7 @@ if user == "root":
 4. i3wm
 5. Nevermind.""")
         user_optin_de_option = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-        if user_optin_de_option == "1" or "":
+        if user_optin_de_option in ("1", ""):
             os.system("pacman -S --needed plasma papirus-icon-theme adobe-source-sans-fonts materia-kde")
         elif user_optin_de_option == "2":
             os.system("pacman -S --needed gnome papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
@@ -100,10 +103,14 @@ if user == "root":
     else:
         print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Adding multilib repo for Wine and other gaming tools...{Style.RESET_ALL}")
-    file_multilib = open("/etc/pacman.conf", "a")
-    file_multilib.write("""[multilib]
+    os.system("pacman -Syy | grep multilib > /tmp/arch-post-install-script/user_installed_multilib.xnqs")
+    if os.stat("/tmp/arch-post-install-script/user_installed_multilib.xnqs").st_size == 0:
+        file_multilib = open("/etc/pacman.conf", "a")
+        file_multilib.write("""[multilib]
 Include = /etc/pacman.d/mirrorlist""")
-    file_multilib.close()
+        file_multilib.close()
+    else:
+        print(f"\n{Fore.BLUE}### Skipping multilib because it is already installed...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Installing Lutris Dependencies...{Style.RESET_ALL}")
     os.system("pacman -S --needed --noconfirm base-devel")
     os.system("pacman -S --needed --noconfirm " + lutrisdeps)
@@ -140,7 +147,7 @@ Include = /etc/pacman.d/mirrorlist""")
 3. Linux TKG (might run badly on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)
 4. Nevermind.""")
         user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-        if user_optin_kerneloption == "1" or "":
+        if user_optin_kerneloption in ("1", ""):
             os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
         elif user_optin_kerneloption == "2":
             if user_optin_chaoticaur == True:
@@ -174,11 +181,7 @@ Include = /etc/pacman.d/mirrorlist""")
         if user_optin_chaoticaur == True:
             os.system("pacman -S --noconfirm performance-tweaks")
         else:
-            print(f"\n{Fore.BLUE}### Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL)")
-        #print(f"\n{Fore.BLUE}### Adding makepkg CFLAGS... {Style.RESET_ALL}")
-        #file_makepkg = open("/etc/makepkg.conf", "a")
-        #file_makepkg.write(makepkgvars)
-        #file_makepkg.close()
+            print(f"\n{Fore.BLUE}### Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
         if user_amdgpu == True:
             user_optin_mesagit = input(f"\n{Fore.BLUE}### Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}")
             if user_optin_mesagit in ("y", "Y", ""):
@@ -210,7 +213,7 @@ Include = /etc/pacman.d/mirrorlist""")
         print(f"\n{Fore.BLUE}### Skipping startup script... {Style.RESET_ALL}")    
     print(f"\n{Fore.BLUE}### Concluding... {Style.RESET_ALL}")
     os.system("rm -rf /tmp/arch-post-install-script/")
-    print(f"""\nThank you for choosing this post-installation script! May your system run marvelously! -{Fore.BLUE}sqnx.{Style.RESET_ALL}
+    print(f"""\nThank you for choosing this post-installation script! May your system run marvelously! {Fore.BLUE}sqnx.{Style.RESET_ALL}
 Also, check out some more of my stuff on GitHub: https://github.com/thepoke32""")
 else:    
     print("")
