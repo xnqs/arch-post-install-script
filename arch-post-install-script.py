@@ -213,7 +213,18 @@ Include = /etc/pacman.d/mirrorlist""")
         file_startup.write(startup_script)
         file_startup.close()
     else:
-        print(f"\n{Fore.BLUE}### Skipping startup script... {Style.RESET_ALL}")    
+        print(f"\n{Fore.BLUE}### Skipping startup script... {Style.RESET_ALL}")
+    user_optin_vfio = input(f"\n{Fore.BLUE}### Do you also want to install some VFIO QEMU/KVM stuff? (for people who want to do GPU passthrough VMs) (y/N) {Style.RESET_ALL}")
+    if user_optin_vfio in ("y", "Y", ""):
+        os.system("pacman -S --needed qemu libvirt edk2-ovmf virt-manager ebtables dnsmasq")
+        os.system("systemctl enable --now libvirtd.service virtlogd.socket")
+        os.system("virsh net-autostart default")
+        os.system("virsh net-start default")
+        os.system("wget 'https://raw.githubusercontent.com/PassthroughPOST/VFIO-Tools/master/libvirt_hooks/qemu' -O /etc/libvirt/hooks/qemu")
+        os.system("chmod +x /etc/libvirt/hooks/qemu")
+        os.system("systemctl restart libvirtd")
+    else:
+        print(f"\n{Fore.BLUE}### Skipping VFIO stuff...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Concluding... {Style.RESET_ALL}")
     os.system("rm -rf /tmp/arch-post-install-script/")
     print(f"""\nThank you for choosing this post-installation script! May your system run marvelously! {Fore.BLUE}sqnx.{Style.RESET_ALL}
