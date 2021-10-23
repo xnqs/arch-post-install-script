@@ -1,0 +1,6 @@
+-chaotic aur [x]
+-multilib [x]
+-lutris and friends [x]
+-pipewire [x]
+-kernel [x]
+
