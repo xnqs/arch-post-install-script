@@ -80,7 +80,7 @@ if user == "root":
         print(f"\n{Fore.BLUE}### Skipping Chaotic AUR...")
     user_optin_de = input(f"\n{Fore.BLUE}### Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}")
     if user_optin_de == "y" or "Y" or "":
-        print("""\nWhich desktop environment do you want to install?
+        print(f"""\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}
 1. KDE (Default)
 2. GNOME
 3. Xfce
