@@ -14,6 +14,8 @@ Include = /etc/pacman.d/chaotic-mirrorlist
 """
 pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseaudio-zeroconf pulseaudio-equalizer"
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
+manjaro_zen = "'https://archive.archlinux.org/packages/l/linux-zen/linux-zen-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
+manjaro_zen_headers = "'https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
 startup_script = """#!/bin/bash
 
 # overclock
@@ -39,14 +41,14 @@ user_amdgpu = bool(os.stat("/tmp/arch-post-install-script/gpu.xnqs").st_size)
 os.system('lspci | grep VGA | grep Intel >> /tmp/arch-post-install-script/gpu.xnqs')
 os.system('lspci | grep VGA | grep QXL >> /tmp/arch-post-install-script/gpu.xnqs')
 user_freegpu = bool(os.stat("/tmp/arch-post-install-script/gpu.xnqs").st_size)
+
 # check if user is on Ryzen CPU
 os.system("cat /proc/cpuinfo | grep Ryzen > /tmp/arch-post-install-script/cpu.xnqs")
 user_amdcpu = bool(os.stat("/tmp/arch-post-install-script/cpu.xnqs").st_size)
 
-if os.path.exists("/tmp/arch-post-install-script/cpu.xnqs"):
-    os.remove("/tmp/arch-post-install-script/cpu.xnqs")
-if os.path.exists("/tmp/arch-post-install-script/gpu.xnqs"):
-    os.remove("/tmp/arch-post-install-script/gpu.xnqs")
+# check if user is on Manjaro
+os.system("cat /etc/lsb-release | grep Manjaro > /tmp/arch-post-install-script/distro.xnqs")
+user_is_on_manjaro = bool(os.stat("/tmp/arch-post-install-script/distro.xnqs").st_size)
 
 # check if user already installed chaotic
 os.system("cat /etc/pacman.conf | grep chaotic > /tmp/arch-post-install-script/chaotic_installed.xnqs")
@@ -68,6 +70,10 @@ print("So basically, what this script will do is it will set up your Arch for hi
 if user == "root":
     print("")
     print(f"You're running this as {Fore.GREEN}" + user + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
+    if user_is_on_manjaro == True:
+        print(f"\n{Fore.BLUE}### Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
+        os.system("pacman-mirrors --api --set-branch unstable")
+        os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
     print(f"\n{Fore.BLUE}### So first, let's start off with the Chaotic AUR!")
     user_optin_chaoticaur = input(f"### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
     if user_optin_chaoticaur in ("y", "Y", ""):
@@ -151,7 +157,11 @@ Include = /etc/pacman.d/mirrorlist""")
 4. Nevermind.""")
         user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
         if user_optin_kerneloption in ("1", ""):
-            os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
+            if user_is_on_manjaro == True:
+                print(f"\n{Fore.BLUE}### User is on Manjaro, so installing latest Zen kernel from the Arch Linux Archive. (update regularly from: https://archive.archlinux.org){Style.RESET_ALL}")
+                os.system("pacman -U --noconfirm " + manjaro_zen + " " + manjaro_zen_headers)
+            else:
+                os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
         elif user_optin_kerneloption == "2":
             if user_optin_chaoticaur == True:
                 os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
