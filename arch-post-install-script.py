@@ -57,6 +57,9 @@ os.system("cat /etc/pacman.conf | grep chaotic > /tmp/arch-post-install-script/c
 print(f"\n{Fore.BLUE}### Updating repos, might take a while depending on your internet connection...{Style.RESET_ALL}")
 os.system("pacman -Syy | grep multilib > /tmp/arch-post-install-script/user_installed_multilib.xnqs")
 
+# check if user already installed mesa-git
+os.system("pacman -Q mesa | grep mesa-git > /tmp/arch-post-install-script/mesa-git.xnqs")
+
 # SCRIPT
 
 os.system("clear")
@@ -140,12 +143,19 @@ Include = /etc/pacman.d/mirrorlist""")
     if user_amdgpu == True:
         if user_optin_chaoticaur == True:
             print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
-            os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+            if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
+                os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+            else:
+                os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro")
         else:
             user_optin_amf = input(f"\n{Fore.BLUE}### I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}")
             if user_optin_amf in ("y", "Y", ""):
-                print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
-                os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+                if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
+                    print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
+                    os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+                else:
+                    print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
+                    os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro")
             else:
                 print(f"\n{Fore.BLUE}### Skipping AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
     user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (If you're on Manjaro, choose N) (Y/n) {Style.RESET_ALL}")
@@ -198,11 +208,14 @@ Include = /etc/pacman.d/mirrorlist""")
         if user_amdgpu == True:
             user_optin_mesagit = input(f"\n{Fore.BLUE}### Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}")
             if user_optin_mesagit in ("y", "Y", ""):
-                print(f"\n{Fore.BLUE}### Installing Experimental Mesa... {Style.RESET_ALL}")
-                if user_optin_chaoticaur == True:
-                    os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
+                if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
+                    print(f"\n{Fore.BLUE}### Installing Experimental Mesa... {Style.RESET_ALL}")
+                    if user_optin_chaoticaur == True:
+                        os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
+                    else:
+                        os.system("sudo -u \#1000 yay -S mesa-git lib32-mesa-git")
                 else:
-                    os.system("sudo -u \#1000 yay -S --noconfirm aur/mesa-git aur/lib32-mesa-git")
+                    print(f"\n{Fore.BLUE}### mesa-git package already installed. Skipping... {Style.RESET_ALL}")
             else:
                 print(f"\n{Fore.BLUE}### Skipping Experimental Mesa... {Style.RESET_ALL}")
         print(f"\n{Fore.BLUE}### Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
