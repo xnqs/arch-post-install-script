@@ -68,10 +68,10 @@ os.system("pacman -Q mesa | grep mesa-git > /tmp/arch-post-install-script/mesa-g
 # SCRIPT
 
 os.system("clear")
-input(f"""{Fore.RED}WARNING: THIS SCRIPT IS EXPERIMENTAL AND STILL BEING DEVELOPED. AS SUCH, IN THIS STATE IT IS EXTREMELY DANGEROUS TO EXECUTE IT AND YOU MAY CAUSE PERMAMENT DAMAGE TO YOUR COMPUTER BY GOING FORWARD WITH THIS. ONLY TEST THIS IN A VM RIGHT NOW AS THIS IS STILL BEING DEVELOPED. BY EXECUTING THIS ON YOUR REAL MACHINE, YOU MAKE YOURSELF RESPONSIBLE FOR ANY AND ALL DAMAGE CAUSED BY THIS SCRIPT.
+input(f"""{Fore.RED}Disclaimer: This script is still being tested, and although it should be immensely safer than the dev builds, on the off chance anything does happen to your computer, it is purely your responsibility. 
+Just don't close the script in the middle of execution. You can, however, safely Ctrl+C it at a Yes or No prompt.
 
-IF YOU UNDERSTAND THE RISKS AND YOU WANT TO CONTINUE, PRESS ENTER.
-OTHERWISE, PRESS CTRL+C.{Style.RESET_ALL}""")
+If you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
 print(f"\nArch Post-Installation Script x.yz - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
 print("Hey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
 print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
