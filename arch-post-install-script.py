@@ -16,6 +16,11 @@ pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseau
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
 manjaro_zen = "'https://archive.archlinux.org/packages/l/linux-zen/linux-zen-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
 manjaro_zen_headers = "'https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
+manjaro_zen_mirrorlist = """##                                                                              
+## Arch Linux repository mirrorlist                                             
+## Generated on 2042-01-01                                                      
+##
+Server=https://archive.archlinux.org/repos/last/$repo/os/$arch"""
 startup_script = """#!/bin/bash
 
 # overclock
@@ -171,11 +176,7 @@ Include = /etc/pacman.d/mirrorlist""")
                 print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
                 os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
                 file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
-                file_manjaro_mirrorlist.write("""##                                                                              
-## Arch Linux repository mirrorlist                                             
-## Generated on 2042-01-01                                                      
-##
-Server=https://archive.archlinux.org/repos/last/$repo/os/$arch""")
+                file_manjaro_mirrorlist.write(manjaro_zen_mirrorlist)
                 file_manjaro_mirrorlist.close()
                 os.system("pacman -Syy linux-zen linux-zen-headers")
                 os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
