@@ -161,15 +161,25 @@ Include = /etc/pacman.d/mirrorlist""")
     user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (If you're on Manjaro, choose N) (Y/n) {Style.RESET_ALL}")
     if user_optin_kernel in ("y", "Y", ""):
         print(f"""\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)
-{Style.RESET_ALL}1. Linux Zen (default, also my personal favourite, (doesn't work in manjaro, install from linux-zen-git AUR package))
+{Style.RESET_ALL}1. Linux Zen (default, also my personal favourite)
 2. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)
 3. Linux TKG (might run badly on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)
 4. Nevermind.""")
         user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
         if user_optin_kerneloption in ("1", ""):
             if user_is_on_manjaro == True:
-                print(f"\n{Fore.BLUE}### User is on Manjaro, so installing latest Zen kernel from the Arch Linux Archive. (update regularly from: https://archive.archlinux.org){Style.RESET_ALL}")
-                os.system("pacman -U --noconfirm " + manjaro_zen + " " + manjaro_zen_headers)
+                print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
+                os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
+                file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
+                file_manjaro_mirrorlist.write("""##                                                                              
+## Arch Linux repository mirrorlist                                             
+## Generated on 2042-01-01                                                      
+##
+Server=https://archive.archlinux.org/repos/last/$repo/os/$arch""")
+                file_manjaro_mirrorlist.close()
+                os.system("pacman -Syy linux-zen linux-zen-headers")
+                os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
+                os.system("pacman -Syy")
             else:
                 os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
         elif user_optin_kerneloption == "2":
