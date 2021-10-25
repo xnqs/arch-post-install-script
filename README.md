@@ -1,7 +1,7 @@
 # arch-post-install-script
 WARNING: might hurt to look at the code.
 
-Arch Post-Installation script for gamers. This script installs everything a gamer needs: Steam, Lutris, Discord, OBS, and it even configures your computer for the highest performance in gaming. (up to ~35% boost in some games, way less performance hit when recording with OBS):
+Arch Post-Installation script for gamers. This script installs everything a gamer needs: Steam, Lutris, Discord, OBS, and it even configures your computer for the highest performance in gaming. (up to ~50% boost in some games, ~80% less performance hit when recording with OBS):
 
 - OBS configured with zero-copy game capture (obs-vkcapture, might trigger some anti-cheats) and hardware acceleration for AMD
 - Garuda's Performance Tweaks
