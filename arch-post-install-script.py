@@ -262,7 +262,7 @@ Include = /etc/pacman.d/mirrorlist""")
     print(f"\n{Fore.BLUE}### Concluding... {Style.RESET_ALL}")
     os.system("rm -rf /tmp/arch-post-install-script/")
     print(f"""\nThank you for choosing this post-installation script! May your system run marvelously! {Fore.BLUE}sqnx.{Style.RESET_ALL}
-Also, check out some more of my stuff on GitHub: https://github.com/thepoke32""")
+Also, check out some more of my stuff on GitHub: {Fore.BLUE}https://github.com/xnqs{Style.RESET_ALL}\n""")
 else:    
     print("")
     print(f"You're running this as {Fore.RED}" + user + f"""{Style.RESET_ALL}, so this installation script will cease to work.
