@@ -134,17 +134,17 @@ Include = /etc/pacman.d/mirrorlist""")
     print(f"\n{Fore.BLUE}### Installing Lutris, Steam, and other gaming-related stuff...{Style.RESET_ALL}")
     if user_optin_chaoticaur == True:
         if user_freegpu == True:
-            os.system("pacman -S --needed --noconfirm " + gaming_stuff + " obs-vkcapture-git lib32-obs-vkcapture-git")
+            os.system("pacman -S --needed --noconfirm " + gaming_stuff + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
-            os.system("pacman -S --needed --noconfirm " + gaming_stuff + " obs-nvfbc")
+            os.system("pacman -S --needed --noconfirm " + gaming_stuff + " gwe obs-nvfbc")
     else:
         os.system("sudo -u \#1000 git clone https://aur.archlinux.org/yay.git /tmp/arch-post-install-script/yay/")
         os.system("cd /tmp/arch-post-install-script/yay/")
         os.system("sudo -u \#1000 makepkg -scif --noconfirm")
         if user_freegpu == True:
-            os.system("sudo -u \#1000 yay -S " + gaming_stuff + " obs-vkcapture-git lib32-obs-vkcapture-git")
+            os.system("sudo -u \#1000 yay -S " + gaming_stuff + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
-            os.system("sudo -u \#1000 yay -S " + gaming_stuff + " obs-nvfbc")
+            os.system("sudo -u \#1000 yay -S " + gaming_stuff + " gwe obs-nvfbc")
     if user_amdgpu == True:
         if user_optin_chaoticaur == True:
             print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
