@@ -6,8 +6,10 @@ init()
 
 # VARIABLES
 user = getpass.getuser()
+yes = ["y", "Y", ""]
+no = ["n", "N"]
+yes_or_no = ["y", "Y", "", "n", "N"]
 lutrisdeps = ["wine-tkg-staging-fsync-git giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader", "wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"]
-
 gaming_stuff = "yay lutris steam lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
 chaoticaur = """
 [chaotic-aur]
@@ -17,13 +19,8 @@ pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseau
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
 manjaro_zen = "'https://archive.archlinux.org/packages/l/linux-zen/linux-zen-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
 manjaro_zen_headers = "'https://archive.archlinux.org/packages/l/linux-zen-headers/linux-zen-headers-5.14.14.zen1-1-x86_64.pkg.tar.zst'"
-manjaro_zen_mirrorlist = """##                                                                              
-## Arch Linux repository mirrorlist                                             
-## Generated on 2042-01-01                                                      
-##
-Server=https://archive.archlinux.org/repos/last/$repo/os/$arch"""
+manjaro_zen_mirrorlist = "Server=https://archive.archlinux.org/repos/last/$repo/os/$arch"
 startup_script = """#!/bin/bash
-
 # overclock
 # zenstates -p 0 -f 98 -d 8 -v 20
 cpupower frequency-set -g performance
@@ -66,6 +63,18 @@ os.system("pacman -Syy | grep multilib > /tmp/arch-post-install-script/user_inst
 # check if user already installed mesa-git
 os.system("pacman -Q mesa | grep mesa-git > /tmp/arch-post-install-script/mesa-git.xnqs")
 
+# declare user_optin_x variables for while loop to work
+user_optin_chaoticaur = "bleh"
+user_optin_de = "bleh"
+user_optin_amf = "bleh"
+user_optin_kernel = "bleh"
+user_optin_kernelsure = "bleh"
+user_optin_pipewire = "bleh"
+user_optin_performance = "bleh"
+user_optin_mesagit = "bleh"
+user_optin_otherstartuptweaks = "bleh"
+user_optin_vfio = "bleh"
+
 # SCRIPT
 
 os.system("clear")
@@ -84,43 +93,53 @@ if user == "root":
         os.system("pacman-mirrors --api --set-branch unstable")
         os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
     print(f"\n{Fore.BLUE}### So first, let's start off with the Chaotic AUR!")
-    user_optin_chaoticaur = input(f"### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
-    if user_optin_chaoticaur in ("y", "Y", ""):
-        user_optin_chaoticaur = True
-        if os.stat("/tmp/arch-post-install-script/chaotic_installed.xnqs").st_size == 0:
-            print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
-            os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
-            os.system("pacman-key --lsign-key 3056513887B78AEB")
-            os.system("pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
-            file_pacman = open("/etc/pacman.conf", "a")
-            file_pacman.write(chaoticaur)
-            file_pacman.close()
+    while user_optin_chaoticaur not in yes_or_no:
+        user_optin_chaoticaur = input(f"\n{Fore.BLUE}### Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}")
+        if user_optin_chaoticaur in yes:
+            user_optin_chaoticaur = True
+            if os.stat("/tmp/arch-post-install-script/chaotic_installed.xnqs").st_size == 0:
+                print(f"\n{Fore.BLUE}### Adding Chaotic AUR...{Style.RESET_ALL}")
+                os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
+                os.system("pacman-key --lsign-key 3056513887B78AEB")
+                os.system("pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
+                file_pacman = open("/etc/pacman.conf", "a")
+                file_pacman.write(chaoticaur)
+                file_pacman.close()
+            else:
+                print(f"\n{Fore.BLUE}### Skipping Chaotic AUR because it is already installed...{Style.RESET_ALL}")
+            break
+        elif user_optin_chaoticaur in no:
+            user_optin_chaoticaur = False
+            print(f"\n{Fore.BLUE}### Skipping Chaotic AUR... {Style.RESET_ALL}")
+            break
         else:
-            print(f"\n{Fore.BLUE}### Skipping Chaotic AUR because it is already installed...{Style.RESET_ALL}")
-    else:
-        user_optin_chaoticaur = False
-        print(f"\n{Fore.BLUE}### Skipping Chaotic AUR...")
-    user_optin_de = input(f"\n{Fore.BLUE}### Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}")
-    if user_optin_de in ("y", "Y", ""):
-        print(f"""\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_de not in yes_or_no:
+        user_optin_de = input(f"\n{Fore.BLUE}### Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}")
+        if user_optin_de in yes:
+            print(f"""\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}
 1. KDE (Default)
 2. GNOME
 3. Xfce
 4. i3wm
 5. Nevermind.""")
-        user_optin_de_option = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-        if user_optin_de_option in ("1", ""):
-            os.system("pacman -S --needed plasma papirus-icon-theme adobe-source-sans-fonts materia-kde")
-        elif user_optin_de_option == "2":
-            os.system("pacman -S --needed gnome papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
-        elif user_optin_de_option == "3":
-            os.system("pacman -S --needed xfce4 papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
-        elif user_optin_de_option == "4":
-            os.system("pacman -S --needed i3 i3blocks adobe-source-sans-fonts otf-font-awesome")
-        else:
+            user_optin_de_option = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
+            if user_optin_de_option in ("1", ""):
+                os.system("pacman -S --needed plasma papirus-icon-theme adobe-source-sans-fonts materia-kde")
+            elif user_optin_de_option == "2":
+                os.system("pacman -S --needed gnome papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
+            elif user_optin_de_option == "3":
+                os.system("pacman -S --needed xfce4 papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
+            elif user_optin_de_option == "4":
+                os.system("pacman -S --needed i3 i3blocks adobe-source-sans-fonts otf-font-awesome")
+            else:
+                print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
+            break
+        elif user_optin_de in no:
             print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
-    else:
-        print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
+            break
+        else:
+            print(f"\n{Fore.BLUE}### Invalid choice.{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Adding multilib repo for Wine and other gaming tools...{Style.RESET_ALL}")
     if os.stat("/tmp/arch-post-install-script/user_installed_multilib.xnqs").st_size == 0:
         file_multilib = open("/etc/pacman.conf", "a")
@@ -157,80 +176,111 @@ Include = /etc/pacman.d/mirrorlist""")
             else:
                 os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro")
         else:
-            user_optin_amf = input(f"\n{Fore.BLUE}### I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}")
-            if user_optin_amf in ("y", "Y", ""):
-                if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
-                    print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
-                    os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+            while user_optin_amf not in yes_or_no:
+                user_optin_amf = input(f"\n{Fore.BLUE}### I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}")
+                if user_optin_amf in yes:
+                    if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
+                        print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
+                        os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+                    else:
+                        print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
+                        os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro")
+                    break
+                elif user_optin_amf in no:
+                    print(f"\n{Fore.BLUE}### Skipping AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
+                    break
                 else:
-                    print(f"\n{Fore.BLUE}### Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
-                    os.system("sudo -u \#1000 yay -S vulkan-amdgpu-pro amf-amdgpu-pro")
-            else:
-                print(f"\n{Fore.BLUE}### Skipping AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
-    user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (If you're on Manjaro, choose N) (Y/n) {Style.RESET_ALL}")
-    if user_optin_kernel in ("y", "Y", ""):
-        print(f"""\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)
+                    print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_kernel not in yes_or_no:
+        user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (Y/n) {Style.RESET_ALL}")
+        if user_optin_kernel in yes:
+            print(f"""\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)
 {Style.RESET_ALL}1. Linux Zen (default, also my personal favourite)
 2. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)
 3. Linux TKG (might run badly on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)
 4. Nevermind.""")
-        user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-        if user_optin_kerneloption in ("1", ""):
-            if user_is_on_manjaro == True:
-                print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
-                os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
-                file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
-                file_manjaro_mirrorlist.write(manjaro_zen_mirrorlist)
-                file_manjaro_mirrorlist.close()
-                os.system("pacman -Syy linux-zen linux-zen-headers")
-                os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
-                os.system("pacman -Syy")
-            else:
-                os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
-        elif user_optin_kerneloption == "2":
-            if user_optin_chaoticaur == True:
-                os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
-            else:
-                user_optin_kernelsure = input(f"\n{Fore.BLUE}### Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
-                if user_option_kernelsure in ("y", "Y", ""):
-                    os.system("sudo -u \#1000 yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
+            user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
+            if user_optin_kerneloption in ("1", ""):
+                if user_is_on_manjaro == True:
+                    print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
+                    os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
+                    file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
+                    file_manjaro_mirrorlist.write(manjaro_zen_mirrorlist)
+                    file_manjaro_mirrorlist.close()
+                    os.system("pacman -Syy linux-zen linux-zen-headers")
+                    os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
+                    os.system("pacman -Syy")
                 else:
-                    print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
-        elif user_optin_kerneloption == "3":
-            if user_optin_chaoticaur == True:
-                os.system("pacman -S --noconfirm linux-tkg-pds linux-tkg-pds-headers")
-            else:     
-                print(f"\n{Fore.BLUE}### Skipping Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
-        else:
-            print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
-    else:
-        print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
-    user_optin_pipewire = input(f"\n{Fore.BLUE}### Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}")
-    if user_optin_pipewire in ("y", "Y", ""):
-        print(f"\n{Fore.BLUE}### Installing Pipewire... {Style.RESET_ALL}")
-        os.system("pacman -Rdd " + pulse)
-        os.system("pacman -S " + pipewire)
-        os.system("killall -s SIGKILL pulseaudio")
-        os.system("sudo -U \#1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_RUNTIME_DIR=/run/user/1000 systemctl --user enable --now pipewire pipewire-pulse pipewire-media-session")
-    else:
-        print(f"\n{Fore.BLUE}### Leaving PulseAudio as it is... {Style.RESET_ALL}")
-    user_optin_performance = input(f"\n{Fore.BLUE}### Do you want to install some performance tweaks while you're at it? (Needs Chaotic AUR) (Y/n) {Style.RESET_ALL}")
-    if user_optin_performance in ("y", "Y", ""):
-        if user_optin_chaoticaur == True:
-            os.system("pacman -S --noconfirm performance-tweaks")
-        else:
-            print(f"\n{Fore.BLUE}### Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
-        if user_amdgpu == True:
-            user_optin_mesagit = input(f"\n{Fore.BLUE}### Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}")
-            if user_optin_mesagit in ("y", "Y", ""):
-                if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
-                    print(f"\n{Fore.BLUE}### Installing Experimental Mesa... {Style.RESET_ALL}")
-                    if user_optin_chaoticaur == True:
-                        os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
+                    os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
+            elif user_optin_kerneloption == "2":
+                if user_optin_chaoticaur == True:
+                    os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
+                else:
+                    user_optin_kernelsure = input(f"\n{Fore.BLUE}### Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
+                    if user_option_kernelsure in yes:
+                        os.system("sudo -u \#1000 yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
                     else:
-                        os.system("sudo -u \#1000 yay -S mesa-git lib32-mesa-git")
-                else:
-                    print(f"\n{Fore.BLUE}### mesa-git package already installed. Skipping... {Style.RESET_ALL}")
+                        print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+            elif user_optin_kerneloption == "3":
+                if user_optin_chaoticaur == True:
+                    os.system("pacman -S --noconfirm linux-tkg-pds linux-tkg-pds-headers")
+                else:     
+                    print(f"\n{Fore.BLUE}### Skipping Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
+            else:
+                print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+            break
+        elif user_optin_kernel in no:
+            print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+            break
+        else:
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_pipewire not in yes_or_no:
+        user_optin_pipewire = input(f"\n{Fore.BLUE}### Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}")
+        if user_optin_pipewire in yes:
+            print(f"\n{Fore.BLUE}### Installing Pipewire... {Style.RESET_ALL}")
+            os.system("pacman -Rdd " + pulse)
+            os.system("pacman -S " + pipewire)
+            os.system("killall -s SIGKILL pulseaudio")
+            os.system("sudo -U \#1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus XDG_RUNTIME_DIR=/run/user/1000 systemctl --user enable --now pipewire pipewire-pulse pipewire-media-session")
+            break
+        elif user_optin_pipewire in no:
+            print(f"\n{Fore.BLUE}### Leaving PulseAudio as it is... {Style.RESET_ALL}")
+            break
+        else:
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_performance not in yes_or_no:
+        user_optin_performance = input(f"\n{Fore.BLUE}### Do you want to install some performance tweaks while you're at it? (Needs Chaotic AUR) (Y/n) {Style.RESET_ALL}")
+        if user_optin_performance in yes:
+            if user_optin_chaoticaur == True:
+                os.system("pacman -S --noconfirm performance-tweaks")
+            else:
+                print(f"\n{Fore.BLUE}### Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
+            if user_amdgpu == True:
+                while user_optin_mesagit not in yes_or_no:
+                    user_optin_mesagit = input(f"\n{Fore.BLUE}### Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}")
+                    if user_optin_mesagit in yes:
+                        if os.stat("/tmp/arch-post-install-script/mesa-git.xnqs").st_size == 0:
+                            print(f"\n{Fore.BLUE}### Installing Experimental Mesa... {Style.RESET_ALL}")
+                            if user_optin_chaoticaur == True:
+                                os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
+                            else:
+                                os.system("sudo -u \#1000 yay -S mesa-git lib32-mesa-git")
+                            break
+                        else:
+                            print(f"\n{Fore.BLUE}### mesa-git package already installed. Skipping... {Style.RESET_ALL}")
+                            break
+                    elif user_optin_mesagit in no:
+                        print(f"\n{Fore.BLUE}### Skipping Experimental Mesa... {Style.RESET_ALL}")
+                        break
+                    else:
+                        print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+            print(f"\n{Fore.BLUE}### Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
+            file_bashrc = open("/etc/bash.bashrc", "a")
+            file_bashrc.write("export WINEFSYNC=1")
+            file_bashrc.close()
+            if user_amdcpu == True:
+                print(f"\n{Fore.BLUE}### Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
+                os.system("sudo -u \#1000 yay -S --noconfirm zenstates-git")
             else:
                 print(f"\n{Fore.BLUE}### Skipping Experimental Mesa... {Style.RESET_ALL}")
         print(f"\n{Fore.BLUE}### Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
@@ -240,29 +290,42 @@ Include = /etc/pacman.d/mirrorlist""")
         if user_amdcpu == True:
             print(f"\n{Fore.BLUE}### Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
             os.system("sudo -u \#1000 yay -S --noconfirm zenstates-git")
+                print(f"\n{Fore.BLUE}### Skipping Zenstates for Ryzen Overclocking since user is not on Ryzen CPU... {Style.RESET_ALL}")
+            break
+        elif user_optin_performance in no:
+            print(f"\n{Fore.BLUE}### Skipping performance tweaks... {Style.RESET_ALL}")
+            break
         else:
-            print(f"\n{Fore.BLUE}### Skipping Zenstates for Ryzen Overclocking since user is not on Ryzen CPU... {Style.RESET_ALL}")
-    else:
-        print(f"\n{Fore.BLUE}### Skipping performance tweaks... {Style.RESET_ALL}")
-    user_optin_otherstartuptweaks = input(f"\n{Fore.BLUE}### Do you want to add a startup script that automatically sets your PC to high performance mode? (Y/n) {Style.RESET_ALL}")
-    if user_optin_otherstartuptweaks in ("y", "Y", ""):
-        print(f"\n{Fore.BLUE}### Adding startup script... {Style.RESET_ALL}")    
-        file_startup = open("/etc/startupscript.sh", "w")
-        file_startup.write(startup_script)
-        file_startup.close()
-    else:
-        print(f"\n{Fore.BLUE}### Skipping startup script... {Style.RESET_ALL}")
-    user_optin_vfio = input(f"\n{Fore.BLUE}### Do you also want to install some VFIO QEMU/KVM stuff? (for people who want to do GPU passthrough VMs) (y/N) {Style.RESET_ALL}")
-    if user_optin_vfio in ("y", "Y", ""):
-        os.system("pacman -S --needed qemu libvirt edk2-ovmf virt-manager ebtables dnsmasq")
-        os.system("systemctl enable --now libvirtd.service virtlogd.socket")
-        os.system("virsh net-autostart default")
-        os.system("virsh net-start default")
-        os.system("wget 'https://raw.githubusercontent.com/PassthroughPOST/VFIO-Tools/master/libvirt_hooks/qemu' -O /etc/libvirt/hooks/qemu")
-        os.system("chmod +x /etc/libvirt/hooks/qemu")
-        os.system("systemctl restart libvirtd")
-    else:
-        print(f"\n{Fore.BLUE}### Skipping VFIO stuff...{Style.RESET_ALL}")
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_otherstartuptweaks not in yes_or_no:
+        user_optin_otherstartuptweaks = input(f"\n{Fore.BLUE}### Do you want to add a startup script that automatically sets your PC to high performance mode? (Y/n) {Style.RESET_ALL}")
+        if user_optin_otherstartuptweaks in yes:
+            print(f"\n{Fore.BLUE}### Adding startup script... {Style.RESET_ALL}")    
+            file_startup = open("/etc/startupscript.sh", "w")
+            file_startup.write(startup_script)
+            file_startup.close()
+            break
+        elif user_optin_otherstartuptweaks in no:
+            print(f"\n{Fore.BLUE}### Skipping startup script... {Style.RESET_ALL}")
+            break
+        else:
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
+    while user_optin_vfio not in yes_or_no:
+        user_optin_vfio = input(f"\n{Fore.BLUE}### Do you also want to install some VFIO QEMU/KVM stuff? (for people who want to do GPU passthrough VMs) (y/N) {Style.RESET_ALL}")
+        if user_optin_vfio in yes:
+            os.system("pacman -S --needed qemu libvirt edk2-ovmf virt-manager ebtables dnsmasq")
+            os.system("systemctl enable --now libvirtd.service virtlogd.socket")
+            os.system("virsh net-autostart default")
+            os.system("virsh net-start default")
+            os.system("wget 'https://raw.githubusercontent.com/PassthroughPOST/VFIO-Tools/master/libvirt_hooks/qemu' -O /etc/libvirt/hooks/qemu")
+            os.system("chmod +x /etc/libvirt/hooks/qemu")
+            os.system("systemctl restart libvirtd")
+            break
+        elif user_optin_vfio in no:
+            print(f"\n{Fore.BLUE}### Skipping VFIO stuff...{Style.RESET_ALL}")
+            break
+        else:
+            print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}### Concluding... {Style.RESET_ALL}")
     os.system("rm -rf /tmp/arch-post-install-script/")
     print(f"""\nThank you for choosing this post-installation script! May your system run marvelously! {Fore.BLUE}sqnx.{Style.RESET_ALL}
