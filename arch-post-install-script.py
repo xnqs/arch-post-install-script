@@ -235,7 +235,7 @@ Include = /etc/pacman.d/mirrorlist""")
                 print(f"\n{Fore.BLUE}### Skipping Experimental Mesa... {Style.RESET_ALL}")
         print(f"\n{Fore.BLUE}### Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
         file_bashrc = open("/etc/bash.bashrc", "a")
-        file_bashrc.write("export WINEFSYNC=1")
+        file_bashrc.write("\nexport WINEESYNC=1\nexport WINEFSYNC=1")
         file_bashrc.close()
         if user_amdcpu == True:
             print(f"\n{Fore.BLUE}### Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
