@@ -28,4 +28,4 @@ sudo python arch-post-install-script.py
 ```
 
 ## Note
-This script assumes there is only one user other than root, with the user ID of 1000.
+This script might still behave a bit weirdly, but nothing bad should happen.
