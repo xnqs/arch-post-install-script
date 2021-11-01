@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # IMPORT NECESSARY LIBRARIES
 import os
 import getpass
@@ -12,12 +14,13 @@ nodefault = ["n", "N", ""]
 yes2 = ["y", "Y"]
 yes_or_no = ["y", "Y", "", "n", "N"]
 lutrisdeps = ["wine-tkg-staging-fsync-git giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader", "wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"]
-gaming_stuff = "yay lutris steam lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
+gaming_stuff = "yay neovim lutris steam lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
 chaoticaur = "\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n"
 pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseaudio-zeroconf pulseaudio-equalizer"
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
 manjaro_zen_mirrorlist = "Server=https://archive.archlinux.org/repos/last/$repo/os/$arch"
 startup_script = ["#!/bin/bash\n# overclock\n# zenstates -p 0 -f 98 -d 8 -v 20\ncpupower frequency-set -g performance\n\n# disable multi-generational lru, linux-zen runs awfully because of this\necho 0 | tee /sys/kernel/mm/lru_gen/enabled", "[Unit]\nAfter=hibernate.target\nAfter=hybrid-sleep.target\nAfter=suspend.target\nAfter=suspend-then-hibernate.target\nDescription=Startup Script\n\n[Service]\nExecStart=/etc/startupscript.sh\n\n[Install]\nWantedBy=multi-user.target\nWantedBy=hibernate.target\nWantedBy=hybrid-sleep.target\nWantedBy=suspend.target\nWantedBy=suspend-then-hibernate.target"]
+original_pwd = os.popen("pwd").read().strip()
 
 # removes temp dir if already there
 notfirstrun = os.path.isdir("/tmp/arch-post-install-script/")
@@ -78,6 +81,8 @@ user_optin_performance = "bleh"
 user_optin_mesagit = "bleh"
 user_optin_otherstartuptweaks = "bleh"
 user_optin_vfio = "bleh"
+user_optin_de_option = "bleh"
+user_optin_kerneloption = "bleh"
 
 # SCRIPT
 
@@ -90,6 +95,7 @@ print(f"\nArch Post-Installation Script x.yz - {Fore.BLUE}sqnx.{Style.RESET_ALL}
 print("Hey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
 print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
 if user == "root":
+    input("\nPress enter to continue.")
     print("")
     print(f"You're running this as {Fore.GREEN}" + user + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
     if user_is_on_manjaro == True:
@@ -121,18 +127,26 @@ if user == "root":
     while user_optin_de not in yes_or_no:
         user_optin_de = input(f"\n{Fore.BLUE}### Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}")
         if user_optin_de in yes:
-            print(f"\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}\n1. KDE (Default)\n2. GNOME\n3. Xfce\n4. i3wm\n5. Nevermind.")
-            user_optin_de_option = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-            if user_optin_de_option in ("1", ""):
-                os.system("pacman -S --needed plasma papirus-icon-theme adobe-source-sans-fonts materia-kde")
-            elif user_optin_de_option == "2":
-                os.system("pacman -S --needed gnome papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
-            elif user_optin_de_option == "3":
-                os.system("pacman -S --needed xfce4 papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
-            elif user_optin_de_option == "4":
-                os.system("pacman -S --needed i3 i3blocks adobe-source-sans-fonts otf-font-awesome")
-            else:
-                print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
+            while user_optin_de_option not in ("1", "", "2", "3", "4", "5"):
+                print(f"\n{Fore.BLUE}### Which desktop environment do you want to install?{Style.RESET_ALL}\n1. KDE (Default)\n2. GNOME\n3. Xfce\n4. i3wm\n5. Nevermind.")
+                user_optin_de_option = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
+                if user_optin_de_option in ("1", ""):
+                    os.system("pacman -S --needed plasma papirus-icon-theme adobe-source-sans-fonts materia-kde")
+                    break
+                elif user_optin_de_option == "2":
+                    os.system("pacman -S --needed gnome papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
+                    break
+                elif user_optin_de_option == "3":
+                    os.system("pacman -S --needed xfce4 papirus-icon-theme adobe-source-sans-fonts materia-gtk-theme")
+                    break
+                elif user_optin_de_option == "4":
+                    os.system("pacman -S --needed i3 i3blocks adobe-source-sans-fonts otf-font-awesome")
+                    break
+                elif user_optin_de_option == "5":
+                    print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
+                    break
+                else:
+                    print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
             break
         elif user_optin_de in no:
             print(f"\n{Fore.BLUE}### Skipping Desktop Environment...{Style.RESET_ALL}")
@@ -163,6 +177,7 @@ Include = /etc/pacman.d/mirrorlist""")
         os.system("sudo -u " + str(other_user) + " git clone https://aur.archlinux.org/yay.git /tmp/yay/")
         os.chdir("/tmp/yay/")
         os.system("sudo -u " + str(other_user) + " makepkg -scif")
+        os.chdir(original_pwd)
         if user_freegpu == True:
             os.system("sudo -u " + str(other_user) + " yay -S " + gaming_stuff + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
@@ -193,36 +208,47 @@ Include = /etc/pacman.d/mirrorlist""")
     while user_optin_kernel not in yes_or_no:
         user_optin_kernel = input(f"\n{Fore.BLUE}### Do you want to install a custom kernel? (Y/n) {Style.RESET_ALL}")
         if user_optin_kernel in yes:
-            print(f"\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)\n{Style.RESET_ALL}1. Linux Zen (default, also my personal favourite)\n2. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)\n3. Linux TKG (might run badly on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)\n4. Nevermind.")
-            user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
-            if user_optin_kerneloption in ("1", ""):
-                if user_is_on_manjaro == True:
-                    print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
-                    os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
-                    file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
-                    file_manjaro_mirrorlist.write(manjaro_zen_mirrorlist)
-                    file_manjaro_mirrorlist.close()
-                    os.system("pacman -Syy linux-zen linux-zen-headers")
-                    os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
-                    os.system("pacman -Syy")
-                else:
-                    os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
-            elif user_optin_kerneloption == "2":
-                if user_optin_chaoticaur == True:
-                    os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
-                else:
-                    user_optin_kernelsure = input(f"\n{Fore.BLUE}### Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
-                    if user_optin_kernelsure in yes:
-                        os.system("sudo -u " + str(other_user) + " yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
+            while user_optin_kerneloption not in ("1", "", "2", "3", "4", "5"):
+                print(f"\n{Fore.BLUE}### Which custom kernel suits your needs best? (If in doubt, just choose 1.)\n{Style.RESET_ALL}1. Linux Zen (default, also my personal favourite)\n2. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)\n3. Linux TKG (mileage may vary on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)\n4. Custom kernel specified by user\n5. Nevermind.")
+                user_optin_kerneloption = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
+                if user_optin_kerneloption in ("1", ""):
+                    if user_is_on_manjaro == True:
+                        print(f"\n{Fore.BLUE}### User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
+                        os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
+                        file_manjaro_mirrorlist = open("/etc/pacman.d/mirrorlist", "w")
+                        file_manjaro_mirrorlist.write(manjaro_zen_mirrorlist)
+                        file_manjaro_mirrorlist.close()
+                        os.system("pacman -Syy linux-zen linux-zen-headers")
+                        os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
+                        os.system("pacman -Syy")
                     else:
-                        print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
-            elif user_optin_kerneloption == "3":
-                if user_optin_chaoticaur == True:
-                    os.system("pacman -S --noconfirm linux-tkg-pds linux-tkg-pds-headers")
-                else:     
-                    print(f"\n{Fore.BLUE}### Skipping Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
-            else:
-                print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+                        os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
+                    break
+                elif user_optin_kerneloption == "2":
+                    if user_optin_chaoticaur == True:
+                        os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
+                    else:
+                        user_optin_kernelsure = input(f"\n{Fore.BLUE}### Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
+                        if user_optin_kernelsure in yes:
+                            os.system("sudo -u " + str(other_user) + " yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
+                        else:
+                            print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+                    break
+                elif user_optin_kerneloption == "3":
+                    if user_optin_chaoticaur == True:
+                        os.system("pacman -S --noconfirm linux-tkg-pds linux-tkg-pds-headers")
+                    else:     
+                        print(f"\n{Fore.BLUE}### Skipping Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
+                    break
+                elif user_optin_kerneloption == "4":
+                    user_optin_customkerneloption = input(f"\nType custom kernel package name below. (e.g linux-zen-git installs linux-zen-git and linux-zen-git-headers):\n{Fore.BLUE}> {Style.RESET_ALL}")
+                    os.system("sudo -u " + str(other_user) + " yay -S " + user_optin_customkerneloption + " " + user_optin_customkerneloption + "-headers")
+                    break
+                elif user_optin_kerneloption == "5":
+                    print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
+                    break
+                else:
+                    print(f"\n{Fore.BLUE}### Invalid option.{Style.RESET_ALL}")
             break
         elif user_optin_kernel in no:
             print(f"\n{Fore.BLUE}### Skipping Custom Kernel... {Style.RESET_ALL}")
