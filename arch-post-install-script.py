@@ -16,7 +16,14 @@ yes_or_no = ["y", "Y", "", "n", "N"]
 lutrisdeps = ["wine-tkg-staging-fsync-git giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader", "wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"]
 gaming_stuff = "yay neovim cpupower lutris steam lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron"
 chaoticaur = "\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n"
-pulse = "pulseaudio pulseaudio-alsa pulseaudio-bluetooth pulseaudio-jack pulseaudio-zeroconf pulseaudio-equalizer"
+pulse = [
+        "pulseaudio",
+        "pulseaudio-alsa",
+        "pulseaudio-bluetooth"
+        "pulseaudio-jack",
+        "pulseaudio-zeroconf",
+        "pulseaudio-equalizer"
+        ]
 pipewire = "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf"
 manjaro_zen_mirrorlist = "Server=https://archive.archlinux.org/repos/last/$repo/os/$arch"
 startup_script = ["#!/bin/bash\n# overclock\n# zenstates -p 0 -f 98 -d 8 -v 20\ncpupower frequency-set -g performance\n\n# disable multi-generational lru, linux-zen runs awfully because of this\necho 0 | tee /sys/kernel/mm/lru_gen/enabled", "[Unit]\nAfter=hibernate.target\nAfter=hybrid-sleep.target\nAfter=suspend.target\nAfter=suspend-then-hibernate.target\nDescription=Startup Script\n\n[Service]\nExecStart=/etc/startupscript.sh\n\n[Install]\nWantedBy=multi-user.target\nWantedBy=hibernate.target\nWantedBy=hybrid-sleep.target\nWantedBy=suspend.target\nWantedBy=suspend-then-hibernate.target"]
@@ -115,6 +122,7 @@ if user == "root":
                 file_pacman = open("/etc/pacman.conf", "a")
                 file_pacman.write(chaoticaur)
                 file_pacman.close()
+                os.system("pacman -Syy")
             else:
                 print(f"\n{Fore.BLUE}==> Skipping Chaotic AUR because it is already installed...{Style.RESET_ALL}")
             break
@@ -259,7 +267,8 @@ Include = /etc/pacman.d/mirrorlist""")
         user_optin_pipewire = input(f"\n{Fore.BLUE}==> Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}")
         if user_optin_pipewire in yes:
             print(f"\n{Fore.BLUE}==> Installing Pipewire... {Style.RESET_ALL}")
-            os.system("pacman -Rdd " + pulse)
+            for i in range(6):
+                os.system("pacman -Rdd " + pulse[i])
             os.system("pacman -S " + pipewire)
             os.system("killall -s SIGKILL pulseaudio")
             os.system("sudo -u " + other_user + " DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + str(user_id) + "/bus XDG_RUNTIME_DIR=/run/user/" + str(user_id) + " systemctl --user enable --now pipewire pipewire-pulse pipewire-media-session")
@@ -273,7 +282,7 @@ Include = /etc/pacman.d/mirrorlist""")
         user_optin_performance = input(f"\n{Fore.BLUE}==> Do you want to install some performance tweaks while you're at it? (Y/n) {Style.RESET_ALL}")
         if user_optin_performance in yes:
             if user_optin_chaoticaur == True:
-                os.system("pacman -S --noconfirm performance-tweaks")
+                os.system("pacman -S performance-tweaks")
             else:
                 print(f"\n{Fore.BLUE}==> Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
             if user_amdgpu == True:
