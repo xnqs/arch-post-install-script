@@ -230,7 +230,7 @@ Include = /etc/pacman.d/mirrorlist""")
                     else:
                         user_optin_kernelsure = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take up to hours, depending on your hardware. (Y/n) {Style.RESET_ALL}")
                         if user_optin_kernelsure in yes:
-                            os.system("sudo -u " + str(other_user) + " yay -S linux-xanmod-cacule linux-xanmod-cacule-headers")
+                            os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-xanmod-cacule linux-xanmod-cacule-headers")
                         else:
                             print(f"\n{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
                     break
@@ -242,7 +242,7 @@ Include = /etc/pacman.d/mirrorlist""")
                     break
                 elif user_optin_kerneloption == "4":
                     user_optin_customkerneloption = input(f"\nType custom kernel package name below. (e.g linux-zen-git installs linux-zen-git and linux-zen-git-headers):\n{Fore.BLUE}> {Style.RESET_ALL}")
-                    os.system("sudo -u " + str(other_user) + " yay -S " + user_optin_customkerneloption + " " + user_optin_customkerneloption + "-headers")
+                    os.system("sudo -u " + str(other_user) + " yay -S --editmenu" + user_optin_customkerneloption + " " + user_optin_customkerneloption + "-headers")
                     break
                 elif user_optin_kerneloption == "5":
                     print(f"\n{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
