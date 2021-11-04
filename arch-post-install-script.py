@@ -267,7 +267,7 @@ Include = /etc/pacman.d/mirrorlist""")
         user_optin_pipewire = input(f"\n{Fore.BLUE}==> Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}")
         if user_optin_pipewire in yes:
             print(f"\n{Fore.BLUE}==> Installing Pipewire... {Style.RESET_ALL}")
-            for i in range(6):
+            for i in range(5):
                 os.system("pacman -Rdd " + pulse[i])
             os.system("pacman -S " + pipewire)
             os.system("killall -s SIGKILL pulseaudio")
