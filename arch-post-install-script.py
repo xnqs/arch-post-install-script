@@ -352,7 +352,6 @@ Include = /etc/pacman.d/mirrorlist""")
         user_optin_zram = input(f"\n{Fore.BLUE}==> Do you want to add RAM compression (zram, really good for users with low ram or using SSDs)? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin_zram in yes:
             print(f"\n{Fore.BLUE}==> Setting up zram... {Style.RESET_ALL}")
-            import re
             with open('/proc/meminfo') as f:
                 meminfo = f.read()
             matched = re.search(r'^MemTotal:\s+(\d+)', meminfo)
