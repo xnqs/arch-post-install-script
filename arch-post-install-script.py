@@ -221,6 +221,20 @@ if user_info["user"] == "root":
         if user_optin["goverlay"] in yes:
             print(f"{Fore.BLUE}==> Installing GOverlay... {Style.RESET_ALL}")
             os.system("sudo -u " + str(other_user) + " yay -S goverlay-git")
+            print(f"{Fore.BLUE}==> Setting up zero-copy instant-replay capture for ReplaySorcery... {Style.RESET_ALL}")
+            os.system("cp /usr/etc/replay-sorcery.conf /home/" + str(other_user) + "/.config/replay-sorcery.conf")
+            with open("/home/" + str(other_user) + "/.config/replay-sorcery.conf","r") as f:
+                f_lines = f.readlines() 
+            with open("/home/" + str(other_user) + "/.config/replay-sorcery.conf","w") as f:
+                for i, line in enumerate(f_lines):
+                    if "videoInput" in line:
+                        f_lines[i] = "videoInput = hwaccel\n"
+                    if "videoFramerate" in line:
+                        f_lines[i] = "videoFramerate = 60\n"
+                    if "audioProfile" in line:
+                        f_lines[i] = "audioProfile = low\n"
+                f.writelines(f_lines)
+            os.system("sudo -u " + other_user + " DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + str(user_info["uid"]) + "/bus XDG_RUNTIME_DIR=/run/user/" + str(user_info["uid"]) + " systemctl --user enable --now replay-sorcery") 
             break
         elif user_optin["goverlay"] in no: 
             print(f"{Fore.BLUE}==> Skipping GOverlay... {Style.RESET_ALL}")
