@@ -249,7 +249,7 @@ if user_info["user"] == "root":
                     while user_optin["kernelsure"] not in yes_or_no:
                         user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
                         if user_optin["kernelsure"] in yes:
-                            os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-xanmod-cacule linux-xanmod-cacule-headers")
+                            os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-clear linux-clear-headers")
                             break
                         elif user_optin["kernelsure"] in no:
                             print(f"{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
