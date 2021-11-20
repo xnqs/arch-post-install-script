@@ -30,8 +30,8 @@ sudo python arch-post-install-script.py
 ```
 
 # How you can increase performance further
-## For Ryzen 5000 series CPUs
-The performance governor can actually be detrimental to performance when it comes to Ryzen 5000 series CPUs, as performance mode runs the CPU at full frequency, and doesn't take advantage of Ryzen 5000's turbo boost. You can remove the line in /etc/startupscript.sh that sets the CPU governor to performance (cpupower frequency-set -g performance). Also, if you're overclocking with zenstates, add `cpupower frequency-set -g schedutil` to set your CPU's governor to schedutil, since zenstates automatically sets CPU governor to performance.
+## For Ryzen 5000 series CPUs or newer Intel CPUs
+The performance governor can actually be detrimental to performance when it comes to Ryzen 5000 series CPUs or newer Intel CPUs, as performance mode runs the CPU at full frequency, and doesn't take advantage of Ryzen 5000's turbo boost. You can remove the line in /etc/startupscript.sh that sets the CPU governor to performance (cpupower frequency-set -g performance). Also, if you're overclocking with zenstates, add `cpupower frequency-set -g schedutil` to set your CPU's governor to schedutil, since zenstates automatically sets CPU governor to performance.
 
 More information can be found here: https://wiki.archlinux.org/title/PCI_passthrough_via_OVMF#CPU_frequency_governor
 ## Overclocking
