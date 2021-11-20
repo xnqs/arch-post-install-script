@@ -46,4 +46,3 @@ You can also just change frequency in the BIOS, but that will disable pstates/go
 This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.
 
 Just don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.
-
