@@ -3,6 +3,7 @@ WARNING: might hurt to look at the code. Don't worry, I'll plan on refactoring i
 
 Arch Post-Installation script for gamers. This script installs everything a gamer needs: Steam, Lutris, Discord, OBS, and it even configures your computer for the highest performance in gaming. (up to ~50% boost in some games, ~80% less performance hit when recording with OBS):
 
+- GOverlay: solution for instant replays, and MangoHUD (fps, cpu usage etc)
 - OBS configured with zero-copy game capture (obs-vkcapture, might trigger some anti-cheats) and hardware acceleration for AMD
 - Garuda's Performance Tweaks
 - Feral Gamemode
