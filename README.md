@@ -13,6 +13,10 @@ Arch Post-Installation script for gamers. This script installs everything a game
 - High Performance CPU governor
 - RAM compression
 
+# Compatibility
+- Arch [x]
+- Manjaro [x]
+
 # Dependencies
 Most dependencies auto-install with the script, but right now you have to install git and colorama manually:
 
