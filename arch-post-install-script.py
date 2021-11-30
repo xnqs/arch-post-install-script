@@ -31,6 +31,7 @@ else:
 # DICTIONARIES
 user_info = {
     "user": getpass.getuser(),
+    "yay_installed": bool(os.popen("pacman -Qi | grep 'yay'").read().strip()),
     "uid": os.popen("id -u " + other_user).read().strip(),
     "amdgpu": bool(os.popen("lspci | grep VGA | grep AMD").read().strip()),
     "freegpu": bool(os.popen("lspci | grep VGA | grep Intel").read().strip()),
@@ -103,18 +104,26 @@ if user_info["user"] == "root":
         print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
         os.system("pacman-mirrors --api --set-branch unstable")
         os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
-    print(f"\n{Fore.BLUE}==> So first, let's start off with the Chaotic AUR!")
+    print(f"\n{Fore.BLUE}==> Installing yay aur helper, as it is necessary to continue.{Style.RESET_ALL}")
+    if not user_info["yay_installed"]:
+        os.system("sudo -u " + str(other_user) + " git clone https://aur.archlinux.org/yay.git /tmp/yay/")
+        os.chdir("/tmp/yay/")
+        os.system("sudo -u " + str(other_user) + " makepkg -scif")
+        os.chdir(user_info["pwd"])
+    else:
+        print(f"{Fore.BLUE}==> Yay is already installed, so skipping...{Style.RESET_ALL}")
+    print(f"\n{Fore.BLUE}==> So first, let's start off with the Chaotic AUR!{Style.RESET_ALL}")
     while user_optin["chaoticaur"] not in yes_or_no:
         user_optin["chaoticaur"] = input(f"\n{Fore.BLUE}==> Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}").lower()
         if user_optin["chaoticaur"] in yes:
             user_optin["chaoticaur"] = True
             if not user_info["chaotic_installed"]:
                 print(f"{Fore.BLUE}==> Adding Chaotic AUR...{Style.RESET_ALL}")
-                os.system("pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com")
-                os.system("pacman-key --lsign-key 3056513887B78AEB")
-                os.system("pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
+                os.system("pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com")
+                os.system("pacman-key --lsign-key FBA220DFC880C036")
+                os.system("pacman -U 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'")
                 file_pacman = open("/etc/pacman.conf", "a")
-                file_pacman.write(chaoticaur)
+                file_pacman.write(packages["chaoticaur"])
                 file_pacman.close()
                 os.system("pacman -Syy")
             else:
@@ -162,23 +171,19 @@ if user_info["user"] == "root":
     else:
         print(f"{Fore.BLUE}==> Skipping multilib because it is already installed...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}==> Installing Lutris Dependencies...{Style.RESET_ALL}")
-    os.system("pacman -S --needed --noconfirm base-devel")
+    os.system("pacman -S --needed base-devel")
     if user_optin["chaoticaur"]:
-        os.system("pacman -S --needed --noconfirm " + packages["lutrisdeps"][0])
+        os.system("pacman -S --needed " + packages["lutrisdeps"][0])
     else:
-        os.system("pacman -S --needed --noconfirm " + packages["lutrisdeps"][1])
+        os.system("pacman -S --needed " + packages["lutrisdeps"][1])
     print(f"\n{Fore.BLUE}==> Installing Lutris, Steam, and other gaming-related stuff...{Style.RESET_ALL}")
     if user_optin["chaoticaur"]:
-        if user_info["freegpu"]:
-            os.system("pacman -S --needed --noconfirm " + packages["gaming_stuff"] + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
+        if user_info["freegpu"] or user_info["amdgpu"]:
+            os.system("pacman -S --needed " + packages["gaming_stuff"] + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
-            os.system("pacman -S --needed --noconfirm " + packages["gaming_stuff"] + " gwe obs-nvfbc")
+            os.system("pacman -S --needed " + packages["gaming_stuff"] + " gwe obs-nvfbc")
     else:
-        os.system("sudo -u " + str(other_user) + " git clone https://aur.archlinux.org/yay.git /tmp/yay/")
-        os.chdir("/tmp/yay/")
-        os.system("sudo -u " + str(other_user) + " makepkg -scif")
-        os.chdir(user_info["pwd"])
-        if user_info["freegpu"]:
+        if user_info["freegpu"] or user_info["amdgpu"]:
             os.system("sudo -u " + str(other_user) + " yay -S " + packages["gaming_stuff"] + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
             os.system("sudo -u " + str(other_user) + " yay -S " + packages["gaming_stuff"] + " gwe obs-nvfbc")
@@ -197,9 +202,9 @@ if user_info["user"] == "root":
         if user_optin["chaoticaur"]:
             print(f"\n{Fore.BLUE}==> Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
             if not user_info["mesa-git"]:
-                os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
+                os.system("pacman -S --needed vulkan-amdgpu-pro amf-amdgpu-pro vulkan-radeon lib32-vulkan-radeon")
             else:
-                os.system("pacman -S --needed --noconfirm vulkan-amdgpu-pro amf-amdgpu-pro")
+                os.system("pacman -S --needed vulkan-amdgpu-pro amf-amdgpu-pro")
         else:
             while user_optin["amf"] not in yes_or_no:
                 user_optin["amf"] = input(f"\n{Fore.BLUE}==> I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}").lower()
@@ -257,7 +262,7 @@ if user_info["user"] == "root":
                         os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
                         os.system("pacman -Syy")
                     else:
-                        os.system("pacman -S --noconfirm linux-zen linux-zen-headers")
+                        os.system("pacman -S linux-zen linux-zen-headers")
                     break
                 elif user_optin["kerneloption"] == "2":
                     while user_optin["kernelsure"] not in yes_or_no:
@@ -273,7 +278,7 @@ if user_info["user"] == "root":
                     break
                 elif user_optin["kerneloption"] == "3":
                     if user_optin["chaoticaur"]:
-                        os.system("pacman -S --noconfirm linux-xanmod-cacule linux-xanmod-cacule-headers")
+                        os.system("pacman -S linux-xanmod-cacule linux-xanmod-cacule-headers")
                     else:
                         while user_optin["kernelsure"] not in yes_or_no:
                             user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
@@ -288,7 +293,7 @@ if user_info["user"] == "root":
                     break
                 elif user_optin["kerneloption"] == "4":
                     if user_optin["chaoticaur"]:
-                        os.system("pacman -S --noconfirm linux-tkg-pds linux-tkg-pds-headers")
+                        os.system("pacman -S linux-tkg-pds linux-tkg-pds-headers")
                     else:     
                         print(f"\n{Fore.BLUE}==> Skipping Selected Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
                     break
@@ -333,10 +338,10 @@ if user_info["user"] == "root":
                 while user_optin["mesa-git"] not in yes_or_no:
                     user_optin["mesa-git"] = input(f"\n{Fore.BLUE}==> Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}").lower()
                     if user_optin["mesa-git"] in yes:
-                        if user_info["mesa-git"]:
+                        if not user_info["mesa-git"]:
                             print(f"{Fore.BLUE}==> Installing Experimental Mesa... {Style.RESET_ALL}")
                             if user_optin["chaoticaur"]:
-                                os.system("pacman -S --noconfirm mesa-git lib32-mesa-git")
+                                os.system("pacman -S mesa-git lib32-mesa-git")
                             else:
                                 os.system("sudo -u " + str(other_user) + " yay -S mesa-git lib32-mesa-git")
                             break
@@ -353,7 +358,7 @@ if user_info["user"] == "root":
                 file_bashrc.write("\nexport WINEESYNC=1\nexport WINEFSYNC=1")
             if user_info["amdcpu"]:
                 print(f"\n{Fore.BLUE}==> Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
-                os.system("sudo -u " + str(other_user) + " yay -S --noconfirm zenstates-git")
+                os.system("sudo -u " + str(other_user) + " yay -S zenstates-git")
             else:
                 print(f"{Fore.BLUE}==> Skipping Experimental Mesa... {Style.RESET_ALL}")
         elif user_optin["performance"] in no:
