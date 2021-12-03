@@ -237,9 +237,10 @@ if user_info["user"] == "root":
                     if "videoFramerate" in line:
                         f_lines[i] = "videoFramerate = 60\n"
                     if "audioProfile" in line:
-                        f_lines[i] = "audioProfile = low\n"
+                        f_lines[i] = "audioProfile = main\n"
                 f.writelines(f_lines)
-            os.system("sudo -u " + other_user + " DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + str(user_info["uid"]) + "/bus XDG_RUNTIME_DIR=/run/user/" + str(user_info["uid"]) + " systemctl --user enable --now replay-sorcery") 
+            os.system("systemctl enable --now replay-sorcery-kms")
+            os.system("sudo -u " + other_user + " DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/" + str(user_info["uid"]) + "/bus XDG_RUNTIME_DIR=/run/user/" + str(user_info["uid"]) + " systemctl --user enable --now replay-sorcery")
             break
         elif user_optin["goverlay"] in no: 
             print(f"{Fore.BLUE}==> Skipping GOverlay... {Style.RESET_ALL}")
