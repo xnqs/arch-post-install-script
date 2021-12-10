@@ -28,6 +28,13 @@ if user_count > 1:
 else:
     other_user = open("/tmp/arch-post-install-script/users.xnqs", "r").read().strip()
 
+# check ram size
+with open('/proc/meminfo') as f:
+    meminfo = f.read()
+matched = re.search(r'^MemTotal:\s+(\d+)', meminfo)
+if matched:
+    mem_total_gB = math.floor(int(matched.groups()[0])/1024/1024)
+
 # DICTIONARIES
 user_info = {
     "user": getpass.getuser(),
@@ -76,6 +83,13 @@ packages = {
         "pulseaudio-equalizer"
     ),
     "pipewire": "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf",
+    "zram": (
+        "modprobe zram",
+        "echo lz4 > /sys/block/zram0/comp_algorithm",
+        "echo " + str(mem_total_gB) + "G > /sys/block/zram0/disksize",
+        "mkswap --label zram0 /dev/zram0",
+        "swapon --priority 100 /dev/zram0"
+    )
 }
 
 startup_script = {    
@@ -93,7 +107,7 @@ yes_or_no = ("y", "", "n")
 
 os.system("clear")
 input(f"""{Fore.BLUE}Disclaimer: This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.\nJust don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.\n\nIf you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
-print(f"\nArch Post-Installation Script b0.91 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
+print(f"\nArch Post-Installation Script b0.94 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
 print("\nHey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
 print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
 if user_info["user"] == "root":
@@ -371,11 +385,6 @@ if user_info["user"] == "root":
         user_optin["zram"] = input(f"\n{Fore.BLUE}==> Do you want to add RAM compression (zram, really good for users with low ram or using SSDs)? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["zram"] in yes:
             print(f"{Fore.BLUE}==> Setting up zram... {Style.RESET_ALL}")
-            with open('/proc/meminfo') as f:
-                meminfo = f.read()
-            matched = re.search(r'^MemTotal:\s+(\d+)', meminfo)
-            if matched:
-                mem_total_gB = math.floor(int(matched.groups()[0])/1024/1024)
             with open('/etc/modules-load.d/zram.conf', 'w') as f:
                 f.write("zram\n")
             with open('/etc/modprobe.d/zram.conf', 'w') as f:
@@ -386,7 +395,8 @@ if user_info["user"] == "root":
                 f.write("\n/dev/zram0 none swap defaults 0 0\n")
             with open('/etc/sysctl.d/99-swappiness.conf', 'w') as f:
                 f.write("vm.swappiness=100\n")
-            os.system("swapon /dev/zram0")
+            for i in range(len(packages[zram])):
+                os.system(packages["zram"][i])
             break
         elif user_optin["zram"] in no:
             print(f"{Fore.BLUE}==> Skipping zram... {Style.RESET_ALL}")
