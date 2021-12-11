@@ -16,6 +16,7 @@ Arch Post-Installation script for gamers. This script installs everything a game
 # Compatibility
 - Arch [x]
 - Manjaro [x]
+- EndeavourOS [x]
 
 # Dependencies
 Most dependencies auto-install with the script, but right now you have to install git and colorama manually:

@@ -10,7 +10,7 @@ init()
 
 # removes temp dir if already there
 notfirstrun = os.path.isdir("/tmp/arch-post-install-script/")
-if notfirstrun == True:
+if notfirstrun:
     os.system("sudo rm -rf /tmp/arch-post-install-script/")
     os.mkdir("/tmp/arch-post-install-script/")
 else:
@@ -73,7 +73,7 @@ packages = {
     "chaoticaur": "\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n",
     "lutrisdeps": ("wine-tkg-staging-fsync-git giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader", "wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader"), 
     "gaming_stuff": "yay neovim cpupower lutris vkd3d lib32-vkd3d steam proton-ge-custom heroic-games-launcher-bin lib32-gamemode gamemode mangohud obs-streamfx obs-studio-browser retroarch discord_arch_electron",
-    "software": "chromium vlc spotify qbittorrent yuzu kdenlive olive noisetorch grapejuice-git",
+    "software": "chromium vlc spotify qbittorrent yuzu kdenlive olive noisetorch grapejuice-git onlyoffice-bin",
     "pulse": (
         "pulseaudio",
         "pulseaudio-alsa",
@@ -82,7 +82,7 @@ packages = {
         "pulseaudio-zeroconf",
         "pulseaudio-equalizer"
     ),
-    "pipewire": "pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf",
+    "pipewire": "alsa-card-profiles pipewire pipewire-alsa pipewire-media-session pipewire-pulse pipewire-jack pipewire-zeroconf",
     "zram": (
         "modprobe zram",
         "echo lz4 > /sys/block/zram0/comp_algorithm",
@@ -100,14 +100,13 @@ startup_script = {
 yes = ("y", "")
 no = ("n")
 nodefault = ("n", "")
-yes2 = ("y")
 yes_or_no = ("y", "", "n")
 
 # SCRIPT
 
 os.system("clear")
 input(f"""{Fore.BLUE}Disclaimer: This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.\nJust don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.\n\nIf you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
-print(f"\nArch Post-Installation Script b0.94 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
+print(f"\nArch Post-Installation Script b0.95 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
 print("\nHey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
 print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
 if user_info["user"] == "root":
@@ -118,7 +117,7 @@ if user_info["user"] == "root":
         print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
         os.system("pacman-mirrors --api --set-branch unstable")
         os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
-    print(f"\n{Fore.BLUE}==> Installing yay aur helper, as it is necessary to continue.{Style.RESET_ALL}")
+    print(f"\n{Fore.BLUE}==> Installing yay AUR helper, as it is necessary to continue.{Style.RESET_ALL}")
     if not user_info["yay_installed"]:
         os.system("sudo -u " + str(other_user) + " git clone https://aur.archlinux.org/yay.git /tmp/yay/")
         os.chdir("/tmp/yay/")
@@ -126,6 +125,10 @@ if user_info["user"] == "root":
         os.chdir(user_info["pwd"])
     else:
         print(f"{Fore.BLUE}==> Yay is already installed, so skipping...{Style.RESET_ALL}")
+    print(f"\n{Fore.BLUE}==> Installing other dependencies...")
+    os.system("pacman -S --needed base-devel")
+    if user_info["amdgpu"]:
+        os.system("pacman -S --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver xf86-video-amdgpu")
     print(f"\n{Fore.BLUE}==> So first, let's start off with the Chaotic AUR!{Style.RESET_ALL}")
     while user_optin["chaoticaur"] not in yes_or_no:
         user_optin["chaoticaur"] = input(f"\n{Fore.BLUE}==> Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}").lower()
@@ -185,7 +188,6 @@ if user_info["user"] == "root":
     else:
         print(f"{Fore.BLUE}==> Skipping multilib because it is already installed...{Style.RESET_ALL}")
     print(f"\n{Fore.BLUE}==> Installing Lutris Dependencies...{Style.RESET_ALL}")
-    os.system("pacman -S --needed base-devel")
     if user_optin["chaoticaur"]:
         os.system("pacman -S --needed " + packages["lutrisdeps"][0])
     else:
@@ -221,7 +223,7 @@ if user_info["user"] == "root":
                 os.system("pacman -S --needed vulkan-amdgpu-pro amf-amdgpu-pro")
         else:
             while user_optin["amf"] not in yes_or_no:
-                user_optin["amf"] = input(f"\n{Fore.BLUE}==> I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}").lower()
+                user_optin["amf"] = input(f"{Fore.BLUE}==> I see you haven't added Chaotic AUR so this is gonna take a while... Do you actually want to install AMF? (Y/n) {Style.RESET_ALL}").lower()
                 if user_optin["amf"] in yes:
                     if not user_info["mesa-git"]:
                         print(f"{Fore.BLUE}==> Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
@@ -423,7 +425,7 @@ if user_info["user"] == "root":
         if user_optin["vfio"] in nodefault:
             print(f"{Fore.BLUE}==> Skipping VFIO stuff...{Style.RESET_ALL}")
             break
-        elif user_optin["vfio"] in yes2:
+        elif user_optin["vfio"] in yes:
             os.system("pacman -S --needed qemu libvirt edk2-ovmf virt-manager ebtables dnsmasq")
             os.system("systemctl enable --now libvirtd.service virtlogd.socket")
             os.system("virsh net-autostart default")
