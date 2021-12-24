@@ -5,8 +5,6 @@ import os
 import getpass
 import re
 import math
-from colorama import init, Fore, Back, Style
-init()
 
 # removes temp dir if already there
 notfirstrun = os.path.isdir("/tmp/arch-post-install-script/")
@@ -38,15 +36,16 @@ if matched:
 # DICTIONARIES
 user_info = {
     "user": getpass.getuser(),
-    "yay_installed": bool(os.popen("pacman -Qi | grep 'yay'").read().strip()),
+    "yay_installed": bool(os.popen("pacman -Q | grep 'yay'").read().strip()),
     "uid": os.popen("id -u " + other_user).read().strip(),
     "amdgpu": bool(os.popen("lspci | grep VGA | grep AMD").read().strip()),
-    "freegpu": bool(os.popen("lspci | grep VGA | grep Intel").read().strip()),
+    "freegpu": bool(os.popen("lspci | grep VGA | grep AMD").read().strip() or os.popen("lspci | grep VGA | grep Intel").read().strip() or os.popen("lspci | grep VGA | grep QXL").read().strip()),
     "amdcpu": bool(os.popen("cat /proc/cpuinfo | grep Ryzen").read().strip()),
     "is_on_manjaro": bool(os.popen("cat /etc/lsb-release | grep Manjaro").read().strip()),
     "chaotic_installed": bool(os.popen("cat /etc/pacman.conf | grep chaotic").read().strip()),
     "multilib": bool(os.popen("pacman -Syy | grep multilib").read().strip()),
     "mesa-git": bool(os.popen("pacman -Q mesa | grep mesa-git").read().strip()),
+    "colorama_installed": bool(os.popen("pacman -Q | grep 'python-colorama'").read().strip()),
     "pwd": os.popen("pwd").read().strip()
 }
 
@@ -104,9 +103,14 @@ yes_or_no = ("y", "", "n")
 
 # SCRIPT
 
+print("Installing dependencies...\n")
+if not(user_info["colorama_installed"]):
+    os.system("sudo pacman -S python-colorama")
+from colorama import init, Fore, Back, Style
+init()
 os.system("clear")
 input(f"""{Fore.BLUE}Disclaimer: This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.\nJust don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.\n\nIf you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
-print(f"\nArch Post-Installation Script b0.95 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
+print(f"\nArch Post-Installation Script b0.96 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
 print("\nHey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
 print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
 if user_info["user"] == "root":
@@ -125,9 +129,9 @@ if user_info["user"] == "root":
         os.chdir(user_info["pwd"])
     else:
         print(f"{Fore.BLUE}==> Yay is already installed, so skipping...{Style.RESET_ALL}")
-    print(f"\n{Fore.BLUE}==> Installing other dependencies...")
+    print(f"\n{Fore.BLUE}==> Installing other dependencies...{Style.RESET_ALL}")
     os.system("pacman -S --needed base-devel")
-    if user_info["amdgpu"]:
+    if user_info["amdgpu"] and not(user_info["mesa-git"]):
         os.system("pacman -S --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver xf86-video-amdgpu")
     print(f"\n{Fore.BLUE}==> So first, let's start off with the Chaotic AUR!{Style.RESET_ALL}")
     while user_optin["chaoticaur"] not in yes_or_no:
