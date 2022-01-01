@@ -3,5 +3,5 @@
 -lutris and friends [x]
 -pipewire [x]
 -kernel [x]
--refactor code [-]
+-refactor code [x]
 -better nvidia support [] - i don't use nvidia myself, might need prs

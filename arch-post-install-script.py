@@ -6,6 +6,15 @@ import getpass
 import re
 import math
 
+def install_dependencies():
+    print("Installing dependencies...\n")
+    if not(bool(os.popen("pacman -Q | grep 'python-colorama'").read().strip())):
+        os.system("sudo pacman -S python-colorama")
+
+install_dependencies()
+from colorama import init, Fore, Back, Style
+init()
+
 # removes temp dir if already there
 notfirstrun = os.path.isdir("/tmp/arch-post-install-script/")
 if notfirstrun:
@@ -101,26 +110,23 @@ no = ("n")
 nodefault = ("n", "")
 yes_or_no = ("y", "", "n")
 
-# SCRIPT
+# CORE FUNCTIONS
+def disclaimer():
+    os.system("clear")
+    input(f"""{Fore.BLUE}Disclaimer: This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.\nJust don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.\n\nIf you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
+    print(f"\nArch Post-Installation Script b0.97 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
+    print("\nHey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
+    print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
 
-print("Installing dependencies...\n")
-if not(user_info["colorama_installed"]):
-    os.system("sudo pacman -S python-colorama")
-from colorama import init, Fore, Back, Style
-init()
-os.system("clear")
-input(f"""{Fore.BLUE}Disclaimer: This script is still being tested, and you might encounter some weird or out of place behaviour, such as some prompts not registering properly, or incompatibility with some Arch-based distros. If you do so, please report it on GitHub so I can fix it.\nJust don't close the script in the middle of execution, and you'll be fine. You can, however, safely Ctrl+C it at a Yes or No prompt.\n\nIf you understand the risks, press Enter. Otherwise, press Ctrl+C.{Style.RESET_ALL}""")
-print(f"\nArch Post-Installation Script b0.96 - {Fore.BLUE}sqnx.{Style.RESET_ALL}")
-print("\nHey there! You probably just finished installing Arch, and you want to get straight into the meat and potatoes. I'll install everything you need so you don't have to!")
-print("So basically, what this script will do is it will set up your Arch for high-performance gaming, as the default settings are absolutely abysmal for gaming. I will also install some software that is nice to have for gamers, or literally anyone else, such as OBS configured with DMA-BUF capture for games and Discord with enabled OpenH264. It also installs NVFBC if you're on NVIDIA, which does the same thing as obs-vkcapture, but for NVIDIA GPUs. This script also installs Feral Gamemode, which automatically maxes out your CPU frequency when in a game, resulting in significantly better performance (up to 50% increase in some especially demanding titles). Among other things, you also have a choice to install a graphical environment if you haven't already. With that said, let's get right into it!") 
-if user_info["user"] == "root":
-    input("\nPress enter to continue.")
-    print("")
-    print(f"You're running this as {Fore.GREEN}" + user_info["user"] + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
-    if user_info["is_on_manjaro"]:
-        print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
-        os.system("pacman-mirrors --api --set-branch unstable")
-        os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
+def user_is_not_root():
+    print(f"\nYou're running this as {Fore.RED}" + user_info["user"] + f"""{Style.RESET_ALL}, so this post-installation script will cease to work.\nPlease run this script as {Fore.GREEN}root{Style.RESET_ALL}, either by adding {Fore.GREEN}sudo{Style.RESET_ALL} before the installation script, or by simply running it while logged into the {Fore.GREEN}root{Style.RESET_ALL} account.\n""")
+
+def manjaro_switch_to_unstable():
+    print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
+    os.system("pacman-mirrors --api --set-branch unstable")
+    os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
+
+def install_yay():
     print(f"\n{Fore.BLUE}==> Installing yay AUR helper, as it is necessary to continue.{Style.RESET_ALL}")
     if not user_info["yay_installed"]:
         os.system("sudo -u " + str(other_user) + " git clone https://aur.archlinux.org/yay.git /tmp/yay/")
@@ -129,10 +135,14 @@ if user_info["user"] == "root":
         os.chdir(user_info["pwd"])
     else:
         print(f"{Fore.BLUE}==> Yay is already installed, so skipping...{Style.RESET_ALL}")
+
+def install_other_deps():
     print(f"\n{Fore.BLUE}==> Installing other dependencies...{Style.RESET_ALL}")
     os.system("pacman -S --needed base-devel")
     if user_info["amdgpu"] and not(user_info["mesa-git"]):
         os.system("pacman -S --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon mesa-vdpau lib32-mesa-vdpau libva-mesa-driver lib32-libva-mesa-driver xf86-video-amdgpu")
+
+def install_chaotic():
     print(f"\n{Fore.BLUE}==> So first, let's start off with the Chaotic AUR!{Style.RESET_ALL}")
     while user_optin["chaoticaur"] not in yes_or_no:
         user_optin["chaoticaur"] = input(f"\n{Fore.BLUE}==> Do you wish to add the Chaotic AUR to your repository list? (Highly recommended, makes running this script a lot easier and faster) (Y/n): {Style.RESET_ALL}").lower()
@@ -156,6 +166,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"\n{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_desktop_environment():
     while user_optin["de"] not in yes_or_no:
         user_optin["de"] = input(f"\n{Fore.BLUE}==> Do you want to install a desktop environment? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["de"] in yes:
@@ -185,17 +197,23 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid choice.{Style.RESET_ALL}")
+
+def add_multilib_repo():
     print(f"\n{Fore.BLUE}==> Adding multilib repo for Wine and other gaming tools...{Style.RESET_ALL}")
     if not user_info["multilib"]:
         with open("/etc/pacman.conf", "a") as file_multilib:
             file_multilib.write("[multilib]\nInclude = /etc/pacman.d/mirrorlist")
     else:
         print(f"{Fore.BLUE}==> Skipping multilib because it is already installed...{Style.RESET_ALL}")
+
+def install_lutris_deps():
     print(f"\n{Fore.BLUE}==> Installing Lutris Dependencies...{Style.RESET_ALL}")
     if user_optin["chaoticaur"]:
         os.system("pacman -S --needed " + packages["lutrisdeps"][0])
     else:
         os.system("pacman -S --needed " + packages["lutrisdeps"][1])
+
+def install_lutris_and_other_gaming_tools():
     print(f"\n{Fore.BLUE}==> Installing Lutris, Steam, and other gaming-related stuff...{Style.RESET_ALL}")
     if user_optin["chaoticaur"]:
         if user_info["freegpu"] or user_info["amdgpu"]:
@@ -207,6 +225,8 @@ if user_info["user"] == "root":
             os.system("sudo -u " + str(other_user) + " yay -S " + packages["gaming_stuff"] + " corectrl obs-vkcapture-git lib32-obs-vkcapture-git")
         else:
             os.system("sudo -u " + str(other_user) + " yay -S " + packages["gaming_stuff"] + " gwe obs-nvfbc")
+
+def install_other_software():
     while user_optin["software"] not in yes_or_no:
         user_optin["software"] = input(f"\n{Fore.BLUE}==> Do you want to install some extra software? (e.g Spotify, QBitTorrent, VLC, Olive, Kdenlive, Yuzu (switch emulator), etc. (Y/n): {Style.RESET_ALL}").lower()
         if user_optin["software"] in yes:
@@ -218,6 +238,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_amf():
     if user_info["amdgpu"]:
         if user_optin["chaoticaur"]:
             print(f"\n{Fore.BLUE}==> Installing AMF for OBS hardware-accelerated encoding...{Style.RESET_ALL}")
@@ -241,6 +263,8 @@ if user_info["user"] == "root":
                     break
                 else:
                     print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_goverlay():
     while user_optin["goverlay"] not in yes_or_no:
         user_optin["goverlay"] = input(f"\n{Fore.BLUE}==> Do you want to install GOverlay? (instant replay + fps hud solution) (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["goverlay"] in yes:
@@ -267,6 +291,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_kernel():
     while user_optin["kernel"] not in yes_or_no:
         user_optin["kernel"] = input(f"\n{Fore.BLUE}==> Do you want to install a custom kernel? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["kernel"] in yes:
@@ -333,6 +359,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_pipewire():
     while user_optin["pipewire"] not in yes_or_no:
         user_optin["pipewire"] = input(f"\n{Fore.BLUE}==> Do you want to replace legacy PulseAudio with Pipewire (a newer and better low latency audio server)? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["pipewire"] in yes:
@@ -348,45 +376,61 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_garuda_performance_tweaks():
+    if user_optin["chaoticaur"]:
+        os.system("pacman -S performance-tweaks")
+    else:
+        print(f"{Fore.BLUE}==> Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
+
+def install_mesa_git():
+    if user_info["amdgpu"]:
+        while user_optin["mesa-git"] not in yes_or_no:
+            user_optin["mesa-git"] = input(f"\n{Fore.BLUE}==> Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}").lower()
+            if user_optin["mesa-git"] in yes:
+                if not user_info["mesa-git"]:
+                    print(f"{Fore.BLUE}==> Installing Experimental Mesa... {Style.RESET_ALL}")
+                    if user_optin["chaoticaur"]:
+                        os.system("pacman -S mesa-git lib32-mesa-git")
+                    else:
+                        os.system("sudo -u " + str(other_user) + " yay -S mesa-git lib32-mesa-git")
+                    break
+                else:
+                    print(f"{Fore.BLUE}==> mesa-git package already installed. Skipping... {Style.RESET_ALL}")
+                    break
+            elif user_optin["mesa-git"] in no:
+                print(f"{Fore.BLUE}==> Skipping Experimental Mesa... {Style.RESET_ALL}")
+                break
+            else:
+                print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def enable_fsync():
+    print(f"\n{Fore.BLUE}==> Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
+    with open("/etc/bash.bashrc", "a") as file_bashrc:
+        file_bashrc.write("\nexport WINEESYNC=1\nexport WINEFSYNC=1")
+
+def install_zenstates():
+    if user_info["amdcpu"]:
+        print(f"\n{Fore.BLUE}==> Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
+        os.system("sudo -u " + str(other_user) + " yay -S zenstates-git")
+    else:
+        print(f"{Fore.BLUE}==> Skipping Zenstates, since user is not on a Ryzen CPU... {Style.RESET_ALL}")
+
+def overall_performance_setup():
     while user_optin["performance"] not in yes_or_no:
         user_optin["performance"] = input(f"\n{Fore.BLUE}==> Do you want to install some performance tweaks while you're at it? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["performance"] in yes:
-            if user_optin["chaoticaur"]:
-                os.system("pacman -S performance-tweaks")
-            else:
-                print(f"{Fore.BLUE}==> Chaotic AUR not added, so skipping Garuda Performance Tweaks...{Style.RESET_ALL}")
-            if user_info["amdgpu"]:
-                while user_optin["mesa-git"] not in yes_or_no:
-                    user_optin["mesa-git"] = input(f"\n{Fore.BLUE}==> Install Experimental Mesa? (typically gives a performance boost compared to Mesa, especially on RX 6000 series) (Y/n) {Style.RESET_ALL}").lower()
-                    if user_optin["mesa-git"] in yes:
-                        if not user_info["mesa-git"]:
-                            print(f"{Fore.BLUE}==> Installing Experimental Mesa... {Style.RESET_ALL}")
-                            if user_optin["chaoticaur"]:
-                                os.system("pacman -S mesa-git lib32-mesa-git")
-                            else:
-                                os.system("sudo -u " + str(other_user) + " yay -S mesa-git lib32-mesa-git")
-                            break
-                        else:
-                            print(f"{Fore.BLUE}==> mesa-git package already installed. Skipping... {Style.RESET_ALL}")
-                            break
-                    elif user_optin["mesa-git"] in no:
-                        print(f"{Fore.BLUE}==> Skipping Experimental Mesa... {Style.RESET_ALL}")
-                        break
-                    else:
-                        print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
-            print(f"\n{Fore.BLUE}==> Enabling FSync in bashrc for Wine games to run better... {Style.RESET_ALL}")
-            with open("/etc/bash.bashrc", "a") as file_bashrc:
-                file_bashrc.write("\nexport WINEESYNC=1\nexport WINEFSYNC=1")
-            if user_info["amdcpu"]:
-                print(f"\n{Fore.BLUE}==> Installing Zenstates for Ryzen Overclocking... {Style.RESET_ALL}")
-                os.system("sudo -u " + str(other_user) + " yay -S zenstates-git")
-            else:
-                print(f"{Fore.BLUE}==> Skipping Experimental Mesa... {Style.RESET_ALL}")
+            install_garuda_performance_tweaks()
+            install_mesa_git()
+            enable_fsync()
+            install_zenstates()
         elif user_optin["performance"] in no:
             print(f"{Fore.BLUE}==> Skipping performance tweaks... {Style.RESET_ALL}")
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def enable_zram():
     while user_optin["zram"] not in yes_or_no:
         user_optin["zram"] = input(f"\n{Fore.BLUE}==> Do you want to add RAM compression (zram, really good for users with low ram or using SSDs)? (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["zram"] in yes:
@@ -409,6 +453,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"\n{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def add_startup_tweaks():
     while user_optin["otherstartuptweaks"] not in yes_or_no:
         user_optin["otherstartuptweaks"] = input(f"\n{Fore.BLUE}==> Do you want to add a startup script that automatically sets your PC to high performance mode? (don't use on laptops, it kills battery life as a result of increased power consumption) (Y/n) {Style.RESET_ALL}").lower()
         if user_optin["otherstartuptweaks"] in yes:
@@ -424,6 +470,8 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def install_vfio_stuff():
     while user_optin["vfio"] not in yes_or_no:
         user_optin["vfio"] = input(f"\n{Fore.BLUE}==> Do you also want to install some VFIO QEMU/KVM stuff? (for people who want to do GPU passthrough VMs) (y/N) {Style.RESET_ALL}").lower()
         if user_optin["vfio"] in nodefault:
@@ -440,9 +488,39 @@ if user_info["user"] == "root":
             break
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def conclude():
     print(f"\n{Fore.BLUE}==> Concluding... {Style.RESET_ALL}")
     os.system("rm -rf /tmp/arch-post-install-script/")
     print(f"\nThank you for choosing this post-installation script! May your system run marvelously! {Fore.BLUE}sqnx.{Style.RESET_ALL}\nAlso, check out some more of my stuff on GitHub: {Fore.BLUE}https://github.com/xnqs{Style.RESET_ALL}\n")
-else:    
-    print("")
-    print(f"You're running this as {Fore.RED}" + user_info["user"] + f"""{Style.RESET_ALL}, so this post-installation script will cease to work.\nPlease run this script as {Fore.GREEN}root{Style.RESET_ALL}, either by adding {Fore.GREEN}sudo{Style.RESET_ALL} before the installation script, or by simply running it while logged into the {Fore.GREEN}root{Style.RESET_ALL} account.\n""")
+
+def main():
+    disclaimer()
+    if user_info["user"] == "root":
+        input("\nPress enter to continue.")
+        print("")
+        print(f"You're running this as {Fore.GREEN}" + user_info["user"] + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
+        if user_info["is_on_manjaro"]:
+            manjaro_switch_to_unstable()
+        install_yay()
+        install_other_deps()
+        install_chaotic()
+        install_desktop_environment()
+        add_multilib_repo()
+        install_lutris_deps()
+        install_lutris_and_other_gaming_tools()
+        install_other_software()
+        install_amf()
+        install_goverlay()
+        install_kernel()
+        install_pipewire()
+        overall_performance_setup()
+        enable_zram()
+        add_startup_tweaks()
+        install_vfio_stuff()
+        conclude()
+    else:
+        user_is_not_root()
+
+# MAIN SCRIPT
+main()
