@@ -292,6 +292,55 @@ def install_goverlay():
         else:
             print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
 
+def kernel_install_zen():
+    if user_info["is_on_manjaro"]:
+        print(f"{Fore.BLUE}==> User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
+        os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
+        with open("/etc/pacman.d/mirrorlist", "w") as file_manjaro_mirrorlist:
+            file_manjaro_mirrorlist.write(packages["manjaro_zen_mirrorlist"])
+        os.system("pacman -Syy linux-zen linux-zen-headers")
+        os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
+        os.system("pacman -Syy")
+    else:
+        os.system("pacman -S linux-zen linux-zen-headers")
+
+def kernel_install_clear():
+    while user_optin["kernelsure"] not in yes_or_no:
+        user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
+        if user_optin["kernelsure"] in yes:
+            os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-clear linux-clear-headers")
+            break
+        elif user_optin["kernelsure"] in no:
+            print(f"{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
+            break
+        else:
+            print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def kernel_install_xanmod():
+    if user_optin["chaoticaur"]:
+        os.system("pacman -S linux-xanmod-cacule linux-xanmod-cacule-headers")
+    else:
+        while user_optin["kernelsure"] not in yes_or_no:
+            user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
+            if user_optin["kernelsure"] in yes:
+                os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-xanmod-cacule linux-xanmod-cacule-headers")
+                break
+            elif user_optin["kernelsure"] in no:
+                print(f"{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
+                break
+            else:
+                print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+
+def kernel_install_tkg_pds():
+    if user_optin["chaoticaur"]:
+        os.system("pacman -S linux-tkg-pds linux-tkg-pds-headers")
+    else:     
+        print(f"\n{Fore.BLUE}==> Skipping Selected Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
+
+def kernel_install_custom():
+    user_optin["customkerneloption"] = input(f"\nType custom kernel package name below. (e.g linux-zen-git installs linux-zen-git and linux-zen-git-headers):\n{Fore.BLUE}> {Style.RESET_ALL}").lower()
+    os.system("sudo -u " + str(other_user) + " yay -S --editmenu" + user_optin["customkerneloption"] + " " + user_optin["customkerneloption"] + "-headers")
+
 def install_kernel():
     while user_optin["kernel"] not in yes_or_no:
         user_optin["kernel"] = input(f"\n{Fore.BLUE}==> Do you want to install a custom kernel? (Y/n) {Style.RESET_ALL}").lower()
@@ -300,53 +349,19 @@ def install_kernel():
                 print(f"\n{Fore.BLUE}==> Which custom kernel suits your needs best? (If in doubt, just choose 1.)\n{Style.RESET_ALL}1. Zen Kernel (default, also my personal favourite)\n2. Clear Kernel (Intel's performance-oriented kernel, might perform really well on Zen 3 or newer Intel chips)\n3. Xanmod (Raw performance-oriented kernel, might behave weirdly at 100% load, needs Chaotic AUR or regular AUR)\n4. Linux TKG (mileage may vary on some hardware as opposed to the Zen kernel, like mine for example, needs Chaotic)\n5. Custom kernel specified by user\n6. Nevermind.")
                 user_optin["kerneloption"] = input(f"\n{Fore.BLUE}> {Style.RESET_ALL}")
                 if user_optin["kerneloption"] in ("1", ""):
-                    if user_info["is_on_manjaro"]:
-                        print(f"{Fore.BLUE}==> User is on Manjaro, which doesn't have Zen in its repos, so installing latest Zen kernel from the Arch Linux Archive. Update this every now and then.{Style.RESET_ALL}")
-                        os.system("cat /etc/pacman.d/mirrorlist > /tmp/arch-post-install-script/mirrorlist.xnqs")
-                        with open("/etc/pacman.d/mirrorlist", "w") as file_manjaro_mirrorlist:
-                            file_manjaro_mirrorlist.write(packages["manjaro_zen_mirrorlist"])
-                        os.system("pacman -Syy linux-zen linux-zen-headers")
-                        os.system("cat /tmp/arch-post-install-script/mirrorlist.xnqs > /etc/pacman.d/mirrorlist")
-                        os.system("pacman -Syy")
-                    else:
-                        os.system("pacman -S linux-zen linux-zen-headers")
+                    kernel_install_zen()
                     break
                 elif user_optin["kerneloption"] == "2":
-                    while user_optin["kernelsure"] not in yes_or_no:
-                        user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
-                        if user_optin["kernelsure"] in yes:
-                            os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-clear linux-clear-headers")
-                            break
-                        elif user_optin["kernelsure"] in no:
-                            print(f"{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
-                            break
-                        else:
-                            print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+                    kernel_install_clear()
                     break
                 elif user_optin["kerneloption"] == "3":
-                    if user_optin["chaoticaur"]:
-                        os.system("pacman -S linux-xanmod-cacule linux-xanmod-cacule-headers")
-                    else:
-                        while user_optin["kernelsure"] not in yes_or_no:
-                            user_optin["kernelsure"] = input(f"\n{Fore.BLUE}==> Are you sure you want to install a custom kernel from the AUR? This will take from a couple of minutes, up to a few hours, depending on your hardware. (Y/n) {Style.RESET_ALL}").lower()
-                            if user_optin["kernelsure"] in yes:
-                                os.system("sudo -u " + str(other_user) + " yay -S --editmenu linux-xanmod-cacule linux-xanmod-cacule-headers")
-                                break
-                            elif user_optin["kernelsure"] in no:
-                                print(f"{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
-                                break
-                            else:
-                                print(f"{Fore.BLUE}==> Invalid option.{Style.RESET_ALL}")
+                    kernel_install_xanmod()
                     break
                 elif user_optin["kerneloption"] == "4":
-                    if user_optin["chaoticaur"]:
-                        os.system("pacman -S linux-tkg-pds linux-tkg-pds-headers")
-                    else:     
-                        print(f"\n{Fore.BLUE}==> Skipping Selected Custom Kernel because it's only available in the Chaotic AUR... {Style.RESET_ALL}")
+                    kernel_install_tkg_pds()
                     break
                 elif user_optin["kerneloption"] == "5":
-                    user_optin["customkerneloption"] = input(f"\nType custom kernel package name below. (e.g linux-zen-git installs linux-zen-git and linux-zen-git-headers):\n{Fore.BLUE}> {Style.RESET_ALL}").lower()
-                    os.system("sudo -u " + str(other_user) + " yay -S --editmenu" + user_optin["customkerneloption"] + " " + user_optin["customkerneloption"] + "-headers")
+                    kernel_install_custom()
                     break
                 elif user_optin["kerneloption"] == "6":
                     print(f"\n{Fore.BLUE}==> Skipping Custom Kernel... {Style.RESET_ALL}")
