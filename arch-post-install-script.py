@@ -121,10 +121,15 @@ def disclaimer():
 def user_is_not_root():
     print(f"\nYou're running this as {Fore.RED}" + user_info["user"] + f"""{Style.RESET_ALL}, so this post-installation script will cease to work.\nPlease run this script as {Fore.GREEN}root{Style.RESET_ALL}, either by adding {Fore.GREEN}sudo{Style.RESET_ALL} before the installation script, or by simply running it while logged into the {Fore.GREEN}root{Style.RESET_ALL} account.\n""")
 
+def confirm():
+    input("\nPress enter to continue.")
+    print(f"\nYou're running this as {Fore.GREEN}" + user_info["user"] + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
+
 def manjaro_switch_to_unstable():
-    print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
-    os.system("pacman-mirrors --api --set-branch unstable")
-    os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
+    if user_info["is_on_manjaro"]:
+        print(f"\n{Fore.BLUE}==> Manjaro detected. Switching to Unstable branch, which is actually more stable...{Style.RESET_ALL}")
+        os.system("pacman-mirrors --api --set-branch unstable")
+        os.system("pacman-mirrors --fasttrack 5 && pacman -Syyu")
 
 def install_yay():
     print(f"\n{Fore.BLUE}==> Installing yay AUR helper, as it is necessary to continue.{Style.RESET_ALL}")
@@ -512,11 +517,8 @@ def conclude():
 def main():
     disclaimer()
     if user_info["user"] == "root":
-        input("\nPress enter to continue.")
-        print("")
-        print(f"You're running this as {Fore.GREEN}" + user_info["user"] + f"{Style.RESET_ALL}, which is exactly what we need in order to continue with the installation process. :D")
-        if user_info["is_on_manjaro"]:
-            manjaro_switch_to_unstable()
+        confirm()
+        manjaro_switch_to_unstable()
         install_yay()
         install_other_deps()
         install_chaotic()
